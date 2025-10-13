@@ -43,14 +43,19 @@ This project is a **Supplier Registration System** built using **ASP.NET Web For
 Make sure you have a table named **SUPPLIERS**:
 
 ```sql
-CREATE TABLE SUPPLIERS (
-    SupplierCode VARCHAR(50) PRIMARY KEY,
-    SupplierName VARCHAR(150),
-    Email VARCHAR(100),
-    Mobile VARCHAR(20),
-    GSTIN VARCHAR(50),
-    Address VARCHAR(250),
-    Status VARCHAR(20)
+CREATE TABLE Suppliers
+(
+    SupplierID int Identity(1,1),  
+    SupplierCode NVARCHAR(50) NOT NULL,
+    SupplierName NVARCHAR(300) NOT NULL,
+    Email NVARCHAR(100) NULL,
+    Mobile NVARCHAR(20) NULL,
+    GSTIN NVARCHAR(20) NULL,
+    Address NVARCHAR(250) NULL,
+    Status NVARCHAR(20) NULL,  
+    CreatedDateTime DATETIME NOT NULL DEFAULT GETDATE(),
+    EndDateTime DATETIME NULL,
+    Createdby varchar(20) 
 );
 ```
 
