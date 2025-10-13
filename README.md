@@ -113,7 +113,7 @@ This project is open-source and free to use.
 
 ## 🙌 Author
 
-**Your Name**
+**PRIYANKA H M**
 Project Developed for Supplier Registration Management
 
 ---
