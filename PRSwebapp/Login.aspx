@@ -25,52 +25,12 @@
             padding: 50px 30px 40px 30px;
             text-align: center;
         }
-        .login-card img.logo {
-            width: 80px;
-            margin-bottom: 20px;
-        }
-        .login-card h3 {
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 30px;
-        }
-        .form-control {
-            border-radius: 12px;
-            height: 45px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            font-size: 15px;
-            padding-left: 15px;
-            transition: 0.3s;
-        }
-        .form-control:focus {
-            border-color: #6a11cb;
-            box-shadow: 0 0 8px rgba(106, 17, 203, 0.3);
-        }
-        .btn-primary {
-            width: 100%;
-            height: 45px;
-            border-radius: 12px;
-            background: linear-gradient(90deg, #6a11cb, #2575fc);
-            border: none;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .btn-primary:hover {
-            background: linear-gradient(90deg, #2575fc, #6a11cb);
-            transform: translateY(-2px);
-        }
-        .footer-text {
-            margin-top: 15px;
-            font-size: 13px;
-            color: #666;
-        }
-        .error-text {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 10px;
-            display: block;
-        }
+        .login-card img.logo { width: 80px; margin-bottom: 20px; }
+        .login-card h3 { font-weight: 700; color: #333; margin-bottom: 30px; }
+        .form-control { border-radius: 12px; height: 45px; margin-bottom: 15px; border: 1px solid #ddd; font-size: 15px; padding-left: 15px; }
+        .btn-primary { width: 100%; height: 45px; border-radius: 12px; background: linear-gradient(90deg, #6a11cb, #2575fc); border: none; font-weight: 600; }
+        .footer-text { margin-top: 15px; font-size: 13px; color: #666; }
+        .error-text { color: red; font-size: 14px; margin-bottom: 10px; display: block; }
     </style>
 </head>
 <body>

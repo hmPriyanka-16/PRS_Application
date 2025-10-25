@@ -67,18 +67,35 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="dashboard.aspx" />
     <Content Include="Images\Sakra-logo.png" />
     <Content Include="Login.aspx" />
+    <Content Include="pre-paymentslip.aspx" />
+    <Content Include="supplierdetails.aspx" />
     <Content Include="Web.config" />
     <Content Include="Supplier.aspx" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="dashboard.aspx.cs">
+      <DependentUpon>dashboard.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="dashboard.aspx.designer.cs">
+      <DependentUpon>dashboard.aspx</DependentUpon>
+    </Compile>
     <Compile Include="Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pre-paymentslip.aspx.cs">
+      <DependentUpon>pre-paymentslip.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pre-paymentslip.aspx.designer.cs">
+      <DependentUpon>pre-paymentslip.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SiteMaster.Master.cs">
@@ -87,6 +104,13 @@
     </Compile>
     <Compile Include="SiteMaster.Master.designer.cs">
       <DependentUpon>SiteMaster.Master</DependentUpon>
+    </Compile>
+    <Compile Include="supplierdetails.aspx.cs">
+      <DependentUpon>supplierdetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="supplierdetails.aspx.designer.cs">
+      <DependentUpon>supplierdetails.aspx</DependentUpon>
     </Compile>
     <Compile Include="Supplier.aspx.cs">
       <DependentUpon>Supplier.aspx</DependentUpon>

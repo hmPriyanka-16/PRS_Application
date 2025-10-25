@@ -7,7 +7,7 @@ namespace PRSwebapp
     {
         protected void Page_Load(object sender, EventArgs e)
         {
-            lblError.Text = ""; // clear error on page load
+            lblError.Text = ""; // clear error
         }
 
         protected void btnLogin_Click(object sender, EventArgs e)
@@ -15,11 +15,11 @@ namespace PRSwebapp
             string username = txtUsername.Text.Trim();
             string password = txtPassword.Text.Trim();
 
-            // Hard-coded admin login (you can replace with DB validation later)
+            // Hard-coded login (can replace with DB check)
             if (username == "admin" && password == "admin123")
             {
-                // Redirect to Supplier page
-                Response.Redirect("Supplier.aspx");
+                Session["username"] = username; // store session
+                Response.Redirect("dashboard.aspx"); // open dashboard
             }
             else
             {
