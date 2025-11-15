@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Dashboard</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <style>
         body {
             height: 100vh;
@@ -31,13 +32,14 @@
         .btn-primary { width: 100%; height: 45px; border-radius: 12px; background: linear-gradient(90deg, #6a11cb, #2575fc); border: none; font-weight: 600; }
         .footer-text { margin-top: 15px; font-size: 13px; color: #666; }
         .error-text { color: red; font-size: 14px; margin-bottom: 10px; display: block; }
+        .forgot-link { display: block; margin-top: 10px; font-size: 14px; color: #2575fc; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
     <form runat="server">
         <div class="login-card">
             <img src="images/Sakra-logo.png" alt="Hospital Logo" class="logo" />
-            <h3>Hospital Admin Login</h3>
+            <h3>PRS Process</h3>
 
             <asp:Label ID="lblError" runat="server" CssClass="error-text"></asp:Label>
 
@@ -45,8 +47,65 @@
             <asp:TextBox ID="txtPassword" runat="server" CssClass="form-control" TextMode="Password" Placeholder="Password"></asp:TextBox>
             <asp:Button ID="btnLogin" runat="server" CssClass="btn btn-primary" Text="Login" OnClick="btnLogin_Click" />
 
+            <a class="forgot-link" data-bs-toggle="modal" data-bs-target="#forgotPasswordModal">Forgot Password?</a>
+
             <div class="footer-text">&copy; 2025 Sakra Hospital. All rights reserved.</div>
         </div>
+
+        <!-- Forgot Password Modal -->
+        <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Reset Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <asp:Label ID="lblForgotMsg" runat="server" CssClass="text-success d-block mb-2"></asp:Label>
+                        <asp:TextBox ID="txtEmail" runat="server" CssClass="form-control" Placeholder="Enter your registered email"></asp:TextBox>
+                        <asp:TextBox ID="txtNewPassword" runat="server" CssClass="form-control" TextMode="Password" Placeholder="Enter new password"></asp:TextBox>
+                        <asp:TextBox ID="txtConfirmPassword" runat="server" CssClass="form-control" TextMode="Password" Placeholder="Confirm new password"></asp:TextBox>
+
+                        <a class="forgot-link mt-2" data-bs-toggle="modal" data-bs-target="#forgotEmailModal" data-bs-dismiss="modal">Forgot your email?</a>
+                    </div>
+                    <div class="modal-footer">
+                        <asp:Button ID="btnResetPassword" runat="server" Text="Reset Password" CssClass="btn btn-primary" OnClick="btnResetPassword_Click" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Forgot Email Modal -->
+        <div class="modal fade" id="forgotEmailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Recover Email</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <asp:Label ID="lblRecoverMsg" runat="server" CssClass="text-success d-block mb-2"></asp:Label>
+                        <asp:TextBox ID="txtEmpId" runat="server" CssClass="form-control" Placeholder="Enter your Employee ID"></asp:TextBox>
+                    </div>
+                    <div class="modal-footer">
+                        <asp:Button ID="btnRecoverEmail" runat="server" Text="Show Email ID" CssClass="btn btn-primary" OnClick="btnRecoverEmail_Click" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden field to track which modal to reopen -->
+        <asp:HiddenField ID="hdnModalToOpen" runat="server" />
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const modalToOpen = document.getElementById('<%= hdnModalToOpen.ClientID %>').value;
+                if (modalToOpen) {
+                    const myModal = new bootstrap.Modal(document.getElementById(modalToOpen));
+                    myModal.show();
+                }
+            });
+        </script>
     </form>
 </body>
 </html>

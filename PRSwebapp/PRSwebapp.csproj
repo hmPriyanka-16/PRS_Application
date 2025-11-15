@@ -68,11 +68,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="dashboard.aspx" />
+    <Content Include="EmpClaim.aspx" />
+    <Content Include="Global.asax" />
     <Content Include="Images\Sakra-logo.png" />
     <Content Include="Login.aspx" />
+    <Content Include="pendingtask.aspx" />
     <Content Include="pre-paymentslip.aspx" />
+    <Content Include="PRS_Request.aspx" />
+    <Content Include="RINGipopupp.aspx" />
     <Content Include="supplierdetails.aspx" />
-    <Content Include="Web.config" />
     <Content Include="Supplier.aspx" />
   </ItemGroup>
   <ItemGroup>
@@ -83,12 +87,29 @@
     <Compile Include="dashboard.aspx.designer.cs">
       <DependentUpon>dashboard.aspx</DependentUpon>
     </Compile>
+    <Compile Include="EmpClaim.aspx.cs">
+      <DependentUpon>EmpClaim.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="EmpClaim.aspx.designer.cs">
+      <DependentUpon>EmpClaim.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
     <Compile Include="Login.aspx.cs">
       <DependentUpon>Login.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Login.aspx.designer.cs">
       <DependentUpon>Login.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="pendingtask.aspx.cs">
+      <DependentUpon>pendingtask.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="pendingtask.aspx.designer.cs">
+      <DependentUpon>pendingtask.aspx</DependentUpon>
     </Compile>
     <Compile Include="pre-paymentslip.aspx.cs">
       <DependentUpon>pre-paymentslip.aspx</DependentUpon>
@@ -98,6 +119,20 @@
       <DependentUpon>pre-paymentslip.aspx</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PRS_Request.aspx.cs">
+      <DependentUpon>PRS_Request.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="PRS_Request.aspx.designer.cs">
+      <DependentUpon>PRS_Request.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="RINGipopupp.aspx.cs">
+      <DependentUpon>RINGipopupp.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="RINGipopupp.aspx.designer.cs">
+      <DependentUpon>RINGipopupp.aspx</DependentUpon>
+    </Compile>
     <Compile Include="SiteMaster.Master.cs">
       <DependentUpon>SiteMaster.Master</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
@@ -121,16 +156,13 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="web.config" />
     <None Include="packages.config" />
     <Content Include="SiteMaster.Master" />
-    <None Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
-    <None Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="UploadedFiles\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

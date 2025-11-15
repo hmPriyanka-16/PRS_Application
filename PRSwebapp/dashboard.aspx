@@ -4,52 +4,90 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet" />
+
     <style>
-        .content { padding:90px 30px 30px 30px; }
-        .dashboard-cards { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; }
-        .dashboard-card { flex:1 1 250px; max-width:250px; background:#fff; border-radius:15px; padding:20px; text-align:center; box-shadow:0 8px 20px rgba(0,0,0,0.1); cursor:pointer; transition:transform 0.3s; }
-        .dashboard-card:hover { transform:translateY(-5px); }
-        .dashboard-card img { width:60px; margin-bottom:15px; }
-        .dashboard-card h5 { margin-bottom:10px; font-weight:600; }
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 120px 50px 40px 50px; /* enough top padding for header */
+        }
+
+        /* ===== DASHBOARD CARDS ===== */
+        .dashboard-cards {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+            justify-content: center;
+        }
+
+        .dashboard-card {
+            background: #fff;
+            border-radius: 15px;
+            padding: 25px 20px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card img {
+            width: 60px;
+            margin-bottom: 15px;
+        }
+
+        .dashboard-card h5 {
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #5a3fb5;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1200px) { .dashboard-cards { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 992px) { .dashboard-cards { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 576px) { .dashboard-cards { grid-template-columns: 1fr; } }
     </style>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
     <div class="content">
-        
         <div class="dashboard-cards">
-            <div class="dashboard-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Pending">
-                <h5>Pending Tasks</h5>
-            </div>
-            <div class="dashboard-card">
+            
+
+            <!-- Completed Card -->
+            <div class="dashboard-card" onclick="window.location.href='PRS_Status.aspx?status=completed';">
                 <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Completed">
-                <h5>Completed Tasks</h5>
+                <h5>Completed</h5>
             </div>
-            <div class="dashboard-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Monthly">
-                <h5>Monthly PRS Advance</h5>
+
+            <!-- In Progress Card -->
+            <div class="dashboard-card" onclick="window.location.href='PRS_Status.aspx?status=inprogress';">
+                <img src="https://cdn-icons-png.flaticon.com/512/565/565547.png" alt="In Progress">
+                <h5>In Progress</h5>
             </div>
-            <div class="dashboard-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/2331/2331941.png" alt="Local">
-                <h5>Local Conveyance</h5>
+
+            <!-- My Tasks Card -->
+            <div class="dashboard-card" onclick="window.location.href='pendingtask.aspx';">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="My Tasks">
+                <h5>My Tasks</h5>
             </div>
-            <div class="dashboard-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/3077/3077243.png" alt="Capex">
-                <h5>Capex Advance PRS</h5>
+
+            <!-- New PRS Card -->
+            <div class="dashboard-card" onclick="window.location.href='PRS_Request.aspx';">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828817.png" alt="New PRS">
+                <h5>New PRS</h5>
             </div>
-            <div class="dashboard-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/2921/2921222.png" alt="Expense">
-                <h5>Expense Claim</h5>
+
+            <!-- Supplier PO Entry Card -->
+            <div class="dashboard-card" onclick="window.location.href='Supplierdetails.aspx';">
+                <img src="https://cdn-icons-png.flaticon.com/512/1828/1828884.png" alt="Supplier PO">
+                <h5>Supplier PO Entry</h5>
             </div>
-            <div class="dashboard-card">
-                <img src="https://cdn-icons-png.flaticon.com/512/2920/2920507.png" alt="Vendor">
-                <h5>Regular Vendor Advance PRS</h5>
-            </div>
-            <div class="dashboard-card" >
-                <img src="https://cdn-icons-png.flaticon.com/512/3039/3039435.png" alt="Reimbursement">
-                <h5>Employee Reimbursement</h5>
-            </div>
+
+            <!-- Supplier Registration Card -->
             <div class="dashboard-card" onclick="window.location.href='Supplier.aspx';">
                 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Supplier">
                 <h5>Supplier Registration</h5>

@@ -4,45 +4,213 @@
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .form-card { 
-            background: linear-gradient(180deg, #ffffff, #e6e0ff); 
-            border-radius: 12px; padding: 30px; max-width: 1000px; 
-            margin: 30px auto; box-shadow: 0 6px 18px rgba(0,0,0,0.12); border: 1px solid rgba(108,92,231,0.3); 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        .form-card h2 { text-align:center; color:#6c5ce7; margin-bottom:25px; font-weight:bold; }
-        .form-label { font-weight:500; color:#5a3fb5; font-size:14px; }
-        .form-control, .form-check-input { border-radius:6px; border:1px solid #6c5ce7; box-sizing: border-box; width:100%; }
-        .btn-custom { border-radius:6px; padding:8px 18px; font-weight:500; }
-        .month-panel { border:1px solid #ddd; padding:8px; position:absolute; z-index:100; display:none; border-radius:5px; width:220px; background:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.08); }
-        .combo-container { position:relative; display:flex; }
-        .combo-input { flex:1; width:100%; }
-        .combo-toggle { border:1px solid #6c5ce7; background:#fff; cursor:pointer; padding:0 8px; height:36px; display:inline-flex; align-items:center; justify-content:center; }
-        .dropdown-list { list-style:none; padding:0; margin:0; border:1px solid #6c5ce7; max-height:150px; overflow-y:auto; display:none; position:absolute; background:white; width:100%; z-index:1000; }
-        .dropdown-list li { padding:5px 10px; cursor:pointer; }
-        .dropdown-list li.highlight { background-color:#e6e0ff; }
-        .highlight-text { font-weight:bold; background-color:#dcd6ff; }
-        .po-radio input[type="radio"] { accent-color: black; width: 15px; height: 15px; margin-right: 6px; border: none; background: none; box-shadow: none; }
-        .po-radio { font-weight: 500; color: #000; font-size: 13px; margin-right: 20px; }
-
+        .form-card {
+            background: linear-gradient(180deg, #ffffff, #e6e0ff);
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 1000px;
+            margin: 30px auto;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+            border: 1px solid rgba(108,92,231,0.3);
+        }
+        .form-card h2 {
+            text-align:center;
+            color:#6c5ce7;
+            margin-bottom:25px;
+            font-weight:bold;
+        }
+        .form-label {
+            font-weight:500;
+            color:#5a3fb5;
+            font-size:14px;
+        }
+        .form-control, .form-check-input {
+            border-radius:6px;
+            border:1px solid #6c5ce7;
+            box-sizing: border-box;
+            width:100%;
+        }
+        .btn-custom {
+            border-radius:6px;
+            padding:8px 18px;
+            font-weight:500;
+        }
+        .month-panel {
+            border:1px solid #ddd;
+            padding:8px;
+            position:absolute;
+            z-index:100;
+            display:none;
+            border-radius:5px;
+            width:220px;
+            background:#fff;
+            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        }
+        .combo-container {
+            position:relative;
+            display:flex;
+        }
+        .combo-input {
+            flex:1;
+            width:100%;
+        }
+        .combo-toggle {
+            border:1px solid #6c5ce7;
+            background:#fff;
+            cursor:pointer;
+            padding:0 8px;
+            height:36px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+        }
+        .dropdown-list {
+            list-style:none;
+            padding:0;
+            margin:0;
+            border:1px solid #6c5ce7;
+            max-height:150px;
+            overflow-y:auto;
+            display:none;
+            position:absolute;
+            background:white;
+            width:100%;
+            z-index:1000;
+        }
+        .dropdown-list li {
+            padding:5px 10px;
+            cursor:pointer;
+        }
+        .dropdown-list li.highlight {
+            background-color:#e6e0ff;
+        }
+        .highlight-text {
+            font-weight:bold;
+            background-color:#dcd6ff;
+        }
+        .po-radio input[type="radio"] {
+            accent-color: black;
+            width: 15px;
+            height: 15px;
+            margin-right: 6px;
+            border: none;
+            background: none;
+            box-shadow: none;
+        }
+        .po-radio {
+            font-weight: 500;
+            color: #000;
+            font-size: 13px;
+            margin-right: 20px;
+        }
         /* Popup */
-        #supplierInfoPopup { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.6); z-index:9999; display:none; justify-content:center; align-items:center; }
-        #popupContentWrapper { background:#fff; border-radius:12px; width:95%; max-width:1200px; max-height:85vh; overflow:auto; padding:20px; position:relative; box-shadow:0 8px 25px rgba(0,0,0,0.3); animation: popupFadeIn 0.3s ease; }
-        #popupClose { position:absolute; top:10px; right:15px; cursor:pointer; font-weight:bold; color:#6c5ce7; font-size:20px; }
-        #popupContentWrapper table { width:100%; border-collapse:collapse; font-size:13px; }
-        #popupContentWrapper th, #popupContentWrapper td { border:1px solid #6c5ce7; padding:6px 8px; text-align:left; }
-        #popupContentWrapper td.numeric { text-align:right; }
-        #popupContentWrapper tr:hover { background-color: #f0ecff; }
-
-        @keyframes popupFadeIn { from { opacity:0; transform:scale(0.95); } to { opacity:1; transform:scale(1); } }
-
-        .small-input { font-size:13px; }
-        .search-icon-container { position: relative; display: flex; align-items: center; }
-        .search-icon-container .search-icon { position:absolute; right:35px; font-size:14px; color:#6c5ce7; cursor:pointer; }
-        #popupContentWrapper input.form-control-sm { width:150px; margin-right:10px; }
-        .badge { padding:0.35em 0.6em; font-size:0.75em; font-weight:500; }
+        #supplierInfoPopup {
+            position: fixed;
+            top:0;
+            left:0;
+            width:100vw;
+            height:100vh;
+            background: rgba(0,0,0,0.6);
+            z-index:9999;
+            display:none;
+            justify-content:center;
+            align-items:center;
+        }
+        #popupContentWrapper {
+            background:#fff;
+            border-radius:12px;
+            width:95%;
+            max-width:1200px;
+            max-height:85vh;
+            overflow:auto;
+            padding:20px;
+            position:relative;
+            box-shadow:0 8px 25px rgba(0,0,0,0.3);
+            animation: popupFadeIn 0.3s ease;
+        }
+        #popupClose {
+            position:absolute;
+            top:10px;
+            right:15px;
+            cursor:pointer;
+            font-weight:bold;
+            color:#6c5ce7;
+            font-size:20px;
+        }
+        #popupContentWrapper table {
+            width:100%;
+            border-collapse:collapse;
+            font-size:13px;
+        }
+        #popupContentWrapper th, #popupContentWrapper td {
+            border:1px solid #6c5ce7;
+            padding:6px 8px;
+            text-align:left;
+        }
+        #popupContentWrapper td.numeric {
+            text-align:right;
+        }
+        #popupContentWrapper tr:hover {
+            background-color: #f0ecff;
+        }
+        @keyframes popupFadeIn {
+            from { opacity:0; transform:scale(0.95); }
+            to { opacity:1; transform:scale(1); }
+        }
+        .small-input {
+            font-size:13px;
+        }
+        .search-icon-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .search-icon-container .search-icon {
+            position:absolute;
+            right:35px;
+            font-size:14px;
+            color:#6c5ce7;
+            cursor:pointer;
+        }
+        #popupContentWrapper input.form-control-sm {
+            width:150px;
+            margin-right:10px;
+        }
+        .badge {
+            padding:0.35em 0.6em;
+            font-size:0.75em;
+            font-weight:500;
+        }
         .bg-success { background-color:#28a745; color:#fff; }
         .bg-secondary { background-color:#6c757d; color:#fff; }
+
+        /* File list styling */
+        #fileListContainer div {
+            display: flex;
+            align-items: center;
+            margin-top: 4px;
+            gap: 6px;
+        }
+
+        #fileListContainer span {
+            font-size: 12px; /* smaller file name */
+            word-break: break-all;
+         }
+
+        #fileListContainer button {
+            font-size: 10px;  /* smaller X */
+            width: 18px;
+            height: 18px;
+            padding: 0;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+         }
+
     </style>
 </asp:Content>
 
@@ -81,6 +249,18 @@
                 <ul id="departmentDropdown" class="dropdown-list"></ul>
             </div>
 
+            <div class="col-md-4">
+                <label class="form-label">PRS Type</label>
+                <asp:DropDownList ID="ddlPRSType" runat="server" CssClass="form-control small-input">
+                <asp:ListItem Text="-- Select PRS Type --" Value="" Selected="True" />
+                <asp:ListItem Text="Capex advance PRS" Value="Capex advance PRS" />
+                <asp:ListItem Text="Pre-payment PRS" Value="Pre-payment PRS" />
+                <asp:ListItem Text="Non capex PRS" Value="Non capex PRS" />
+                <asp:ListItem Text="Monthly PRS" Value="Monthly PRS" />
+                </asp:DropDownList>
+            </div>
+
+
             <!-- PO Number & PO Date -->
             <div class="col-md-4">
                 <label class="form-label">Ring Number</label>
@@ -103,7 +283,8 @@
             <div class="col-md-4">
                 <label class="form-label d-block">PO Payment Type</label>
                 <asp:RadioButton ID="rbFixed" runat="server" GroupName="POAmountType" Text="Fixed" CssClass="po-radio" />
-                <asp:RadioButton ID="rbUsage" runat="server" GroupName="POAmountType" Text="On Usage" CssClass="po-radio" />
+               <asp:RadioButton ID="rbOnUsage" runat="server" GroupName="POAmountType" Text="On Usage" CssClass="po-radio" />
+
             </div>
 
             <!-- Months -->
@@ -134,11 +315,28 @@
                 <asp:TextBox ID="txtInvoiceAmount" runat="server" CssClass="form-control" placeholder="Invoice Amount" onkeyup="formatAmount(this);" />
             </div>
 
+             <div class="col-md-4">
+                 <label class="form-label">Nature of Exp. / Services</label>
+                 <asp:TextBox ID="txtNatureOfExp" runat="server" CssClass="form-control small-input" Placeholder="Enter nature of expense or service"></asp:TextBox>
+             </div>
             <div class="col-md-4">
-                <label class="form-label">Agreement/Contract Validity</label>
-                <asp:TextBox ID="txtValidity" runat="server" CssClass="form-control" TextMode="Date" />
+                <label class="form-label">Agreement/Contract start</label>
+                <asp:TextBox ID="txtAgreementStart" runat="server" CssClass="form-control" TextMode="Date" />
             </div>
+            <div class="col-md-4">
+                <label class="form-label">Agreement/Contract end</label>
+                <asp:TextBox ID="txtAgreementEnd" runat="server" CssClass="form-control" TextMode="Date" />
+            </div>
+
+        <!-- Upload Documents -->
+          <div class="col-md-4">
+              <label class="form-label">Upload Documents</label>
+              <asp:FileUpload ID="fuDocument" runat="server" CssClass="form-control" AllowMultiple="true" onchange="handleFileSelection(this);" />
+              <div id="fileListContainer"></div>
+          </div>
+
         </div>
+
 
         <div class="row mt-4">
             <div class="col-12 text-center">
@@ -148,7 +346,66 @@
         </div>
     </div>
 
+
+
     <script type="text/javascript">
+        let selectedFiles = [];
+
+        function handleFileSelection(input) {
+            const newFiles = Array.from(input.files);
+            newFiles.forEach(file => {
+                // Avoid duplicates
+                if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                    selectedFiles.push(file);
+                }
+            });
+            renderFileList(input);
+        }
+
+        function renderFileList(input) {
+            const container = document.getElementById('fileListContainer');
+            container.innerHTML = '';
+            selectedFiles.forEach((file, index) => {
+                const div = document.createElement('div');
+                div.style.display = 'flex';
+                div.style.alignItems = 'center';
+                div.style.marginTop = '5px';
+                div.style.gap = '8px';
+
+                const nameSpan = document.createElement('span');
+                nameSpan.innerText = file.name;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.type = 'button';
+                removeBtn.className = 'btn btn-sm btn-outline-danger';
+                removeBtn.innerText = '✖';
+                removeBtn.onclick = function () { removeFile(index, input); };
+
+                div.appendChild(nameSpan);
+                div.appendChild(removeBtn);
+                container.appendChild(div);
+            });
+
+            // Update the FileUpload input
+            const dt = new DataTransfer();
+            selectedFiles.forEach(f => dt.items.add(f));
+            input.files = dt.files;
+        }
+
+        function removeFile(index, input) {
+            selectedFiles.splice(index, 1);
+            renderFileList(input);
+        }
+
+        // Clear form example
+        function clearForm() {
+            document.querySelectorAll('.form-control').forEach(i => i.value = '');
+            selectedFiles = [];
+            renderFileList(document.getElementById('<%= fuDocument.ClientID %>'));
+    }
+        
+   
+    
         // ---------- GLOBAL VARIABLES ----------
         var supplierItems = <%= new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(supplierItems) %>;
         var departmentItems = <%= new System.Web.Script.Serialization.JavaScriptSerializer().Serialize(departmentItems) %>;
@@ -166,8 +423,8 @@
             var selected = Array.from(monthChecks).filter(c => c.checked && c.value !== 'All').map(c => c.value);
             document.getElementById('<%= txtMonths.ClientID %>').value = selected.join(',');
         }
-        document.querySelectorAll('#<%= chkListMonths.ClientID %> input[type=checkbox]').forEach(c => c.addEventListener('click', function(){ handleMonthSelection(c); }));
-        document.addEventListener('click', function(e){ 
+        document.querySelectorAll('#<%= chkListMonths.ClientID %> input[type=checkbox]').forEach(c => c.addEventListener('click', function () { handleMonthSelection(c); }));
+        document.addEventListener('click', function (e) {
             var panel = document.getElementById('<%= pnlMonthDropdown.ClientID %>');
             var input = document.getElementById('<%= txtMonths.ClientID %>');
             if(!panel.contains(e.target) && e.target!==input) panel.style.display='none';
@@ -198,8 +455,8 @@
             var html='<div style="margin-bottom:15px; display:flex; gap:15px; flex-wrap:wrap; position:relative;">';
             html+='Supplier: <input type="text" id="popupSupplierName" class="form-control form-control-sm">';
             html+='<ul id="popupSupplierDropdown" class="dropdown-list" style="position:absolute; top:30px; left:0;"></ul>';
-            html+='PO Date: <input type="date" id="popupPODate" class="form-control form-control-sm">';
-            html+='Validity: <input type="date" id="popupPOValidity" class="form-control form-control-sm">';
+            html+='Agreement start: <input type="date" id="popupPODate" class="form-control form-control-sm">';
+            html+='Agreement End: <input type="date" id="popupPOValidity" class="form-control form-control-sm">';
             html+='</div><div id="popupTableContainer"><p>Start typing to search...</p></div>';
             document.getElementById('popupContent').innerHTML = html;
             document.getElementById('supplierInfoPopup').style.display='flex';

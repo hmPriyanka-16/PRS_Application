@@ -33,6 +33,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtSupplierCombo;
 
         /// <summary>
+        /// ddlPRSType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlPRSType;
+
+        /// <summary>
         /// txtPODate control.
         /// </summary>
         /// <remarks>
@@ -103,6 +112,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAmount;
+
+        /// <summary>
+        /// fuDocument control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuDocument;
 
         /// <summary>
         /// txtComments control.

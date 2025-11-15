@@ -42,6 +42,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtDepartmentCombo;
 
         /// <summary>
+        /// ddlPRSType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlPRSType;
+
+        /// <summary>
         /// txtRingNumber control.
         /// </summary>
         /// <remarks>
@@ -87,13 +96,13 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.RadioButton rbFixed;
 
         /// <summary>
-        /// rbUsage control.
+        /// rbOnUsage control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.RadioButton rbUsage;
+        protected global::System.Web.UI.WebControls.RadioButton rbOnUsage;
 
         /// <summary>
         /// txtMonths control.
@@ -132,13 +141,40 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtInvoiceAmount;
 
         /// <summary>
-        /// txtValidity control.
+        /// txtNatureOfExp control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtValidity;
+        protected global::System.Web.UI.WebControls.TextBox txtNatureOfExp;
+
+        /// <summary>
+        /// txtAgreementStart control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtAgreementStart;
+
+        /// <summary>
+        /// txtAgreementEnd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtAgreementEnd;
+
+        /// <summary>
+        /// fuDocument control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuDocument;
 
         /// <summary>
         /// btnSave control.

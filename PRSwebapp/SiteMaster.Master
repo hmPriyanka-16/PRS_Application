@@ -3,56 +3,71 @@
 <!DOCTYPE html>
 <html>
 <head runat="server">
-    <title></title>
-    <asp:ContentPlaceHolder ID="head" runat="server">
-    </asp:ContentPlaceHolder>
+    <title>Sakra World Hospital</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+    <asp:ContentPlaceHolder ID="head" runat="server"></asp:ContentPlaceHolder>
 
     <style type="text/css">
-        body {
-            background-color: #f4f0fa;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+        * {
+            box-sizing: border-box;
         }
 
-        /* Fixed header - smaller size */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            font-family: Arial, sans-serif;
+            background-color: #f4f0fa;
+            height: 100%;
+        }
+
         .header {
             background: linear-gradient(90deg, #ffffff, #e6e0ff);
-            padding: 12px 30px; /* reduced padding */
+            padding: 10px 25px;
             display: flex;
             align-items: center;
-            justify-content: flex-start; 
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 10px 10px 0 0;
+            justify-content: space-between;
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
+            width: 100vw;
             z-index: 1000;
-            border: 1px solid rgba(108,92,231,0.3);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(108,92,231,0.3);
         }
 
-        /* Logo slightly smaller */
+        .header-section {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-left {
+            justify-content: flex-start;
+        }
+
+        .header-center {
+            justify-content: center;
+        }
+
+        .header-right {
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
         .logo {
-            width: 140px; /* reduced from 180px */
+            width: 130px;
             height: auto;
-            z-index: 2;
-        }
-
-        .hospital-name-container {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
         }
 
         .hospital-name {
-            font-size: 24px; /* reduced from 28px */
+            font-size: 24px;
             font-weight: bold;
             color: #6c5ce7;
-            text-shadow: 2px 2px 3px rgba(0,0,0,0.2);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+            white-space: nowrap;
             background: linear-gradient(90deg, #5a3fb5, #7a4eb8, #5a3fb5);
             background-size: 200% auto;
             -webkit-background-clip: text;
@@ -67,27 +82,62 @@
 
         @keyframes glow {
             0%,100% {
-                text-shadow: 2px 2px 3px rgba(0,0,0,0.2),
-                             0 0 4px rgba(90,63,181,0.4),
-                             0 0 8px rgba(90,63,181,0.3);
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.2),
+                             0 0 4px rgba(90,63,181,0.4);
             }
             50% {
-                text-shadow: 2px 2px 3px rgba(0,0,0,0.2),
-                             0 0 8px rgba(90,63,181,0.5),
-                             0 0 16px rgba(90,63,181,0.4);
+                text-shadow: 1px 1px 3px rgba(0,0,0,0.2),
+                             0 0 8px rgba(90,63,181,0.5);
             }
         }
 
-        /* Content padding so content is not hidden behind header */
-        .content {
-            width: 100%;
-            margin: 20px auto;
-            flex: 1;
-            padding-top: 70px; /* reduced for smaller header */
+        .user-info-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: nowrap;
         }
 
-        .auto-style2 { width: 100%; }
-        .auto-style3 { height: 554px; }
+        .user-logo {
+            width: 34px;
+            height: 34px;
+            background-color: #6c5ce7;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .user-info {
+            font-weight: bold;
+            color: #5a3fb5;
+            white-space: nowrap;
+        }
+
+        .logout-btn {
+            background-color: #6c5ce7;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: background-color 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .logout-btn:hover {
+            background-color: #5947c2;
+        }
+
+        .content {
+            width: 100%;
+            margin: 0 auto;
+            flex: 1;
+            padding-top: 80px; /* to avoid content hiding under fixed header */
+        }
 
         .footer {
             background: linear-gradient(90deg, #e6e0ff, #ffffff);
@@ -95,15 +145,9 @@
             padding: 15px 0;
             font-size: 14px;
             font-weight: bold;
+            border-top: 1px solid rgba(108,92,231,0.3);
             box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 0 0 10px 10px;
-            position: relative;
-            border: 1px solid rgba(108,92,231,0.3);
-        }
-
-        .footer-text-container {
-            position: relative;
-            display: inline-block;
+            width: 100%;
         }
 
         .footer-text {
@@ -135,30 +179,38 @@
 
 <body>
     <form id="form1" runat="server">
-        <!-- Fixed Header -->
+        <!-- Header -->
         <div class="header">
-            <img alt="sakralogo" class="logo" src="Images/Sakra-logo.png" />
-            <div class="hospital-name-container">
+            <!-- Left -->
+            <div class="header-section header-left">
+                <img alt="Sakra Logo" class="logo" src="Images/Sakra-logo.png" />
+            </div>
+
+            <!-- Center -->
+            <div class="header-section header-center">
                 <span class="hospital-name">SAKRA WORLD HOSPITAL</span>
+            </div>
+
+            <!-- Right -->
+            <div class="header-section header-right">
+                <div class="user-info-container">
+                    <div class="user-logo">
+                        <i class="fa-solid fa-user"></i>
+                    </div>
+                    <asp:Label ID="lblUserName" runat="server" Text="Guest" CssClass="user-info"></asp:Label>
+                    <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+                </div>
             </div>
         </div>
 
-        <!-- Main content -->
+        <!-- Page Content -->
         <div class="content">
-            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
-                <table class="auto-style2">
-                    <tr>
-                        <td class="auto-style3"></td>
-                    </tr>
-                </table>
-            </asp:ContentPlaceHolder>
+            <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server"></asp:ContentPlaceHolder>
         </div>
 
         <!-- Footer -->
         <div class="footer">
-            <div class="footer-text-container">
-                <span class="footer-text">&copy; 2025 SAKRA WORLD HOSPITAL. All rights reserved.</span>
-            </div>
+            <span class="footer-text">&copy; 2025 SAKRA WORLD HOSPITAL. All rights reserved.</span>
         </div>
     </form>
 </body>

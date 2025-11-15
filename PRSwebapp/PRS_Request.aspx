@@ -1,4 +1,5 @@
-﻿<%@ Page Title="" Language="C#" MasterPageFile="~/SiteMaster.Master" AutoEventWireup="true" CodeBehind="pre-paymentslip.aspx.cs" Inherits="PRSwebapp.pre_payment_slip" %>
+﻿<%@ Page Title="" Language="C#" MasterPageFile="~/SiteMaster.Master" AutoEventWireup="true" CodeBehind="PRS_Request.aspx.cs" Inherits="PRSwebapp.PRS_Request" %>
+
 
 <asp:Content ID="Content1" ContentPlaceHolderID="head" runat="server">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -41,7 +42,7 @@
     <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePageMethods="true" />
 
     <div class="form-card">
-        <h2>Pre-payment Slip</h2>
+        <h2>Payment Request Slip</h2>
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">Supplier Name</label>
@@ -225,7 +226,8 @@
             <td>${row.PONumber || ''}</td>
             <td>${row.PODate || ''}</td>
             <td>${row.POPaymentType || ''}</td>
-            <td>${row.Month || ''}</td>       <!-- Correct column -->
+           <td>${row.PaymentsApplicable || ''}</td>
+     <!-- Correct column -->
          
             <td class="numeric">${row.POAmount || ''}</td>
             <td class="numeric">${row.InvoiceAmount || ''}</td>
@@ -238,7 +240,7 @@
 
                 html += `</tbody></table>`;
                 container.innerHTML = html;
-            
+
 
 
                 const table = document.getElementById('popupDataTable');
