@@ -22,17 +22,18 @@ namespace PRSwebapp
             if (!IsPostBack)
             {
                 LoadSuppliers();
-
             }
         }
 
         private void LoadSuppliers()
         {
             supplierItems.Clear();
+
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
                 string sql = "SELECT SupplierName FROM Suppliers ORDER BY SupplierName";
+
                 using (SqlCommand cmd = new SqlCommand(sql, con))
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -46,14 +47,11 @@ namespace PRSwebapp
         {
             try
             {
-
-
-                // 0️⃣ Validate User
                 if (Session["UserID"] == null || Session["Role"] == null)
                 {
                     ClientScript.RegisterStartupScript(this.GetType(), "invalidUser",
                         "alert('Invalid user. Please login again.');", true);
-                    return; // stop execution
+                    return;
                 }
 
                 using (SqlConnection con = new SqlConnection(connectionString))
@@ -62,7 +60,8 @@ namespace PRSwebapp
 
                     // 1️⃣ Get SupplierID
                     int supplierId;
-                    using (SqlCommand cmd = new SqlCommand("SELECT SupplierID FROM Suppliers WHERE SupplierName=@name", con))
+                    using (SqlCommand cmd = new SqlCommand(
+                        "SELECT SupplierID FROM Suppliers WHERE SupplierName=@name", con))
                     {
                         cmd.Parameters.AddWithValue("@name", txtSupplierCombo.Text.Trim());
                         object result = cmd.ExecuteScalar();
@@ -70,12 +69,11 @@ namespace PRSwebapp
                         supplierId = Convert.ToInt32(result);
                     }
 
-                    // 2️⃣ Check if PONumber + Period exists
+                    // 2️⃣ Check duplicate PO + Period
                     bool exists = false;
                     using (SqlCommand cmd = new SqlCommand(@"
-                SELECT COUNT(*) 
-                FROM PrsMaster
-                WHERE PONumber = @PONumber AND Period = @Period", con))
+                    SELECT COUNT(*) FROM PrsMaster
+                    WHERE PONumber=@PONumber AND Period=@Period", con))
                     {
                         cmd.Parameters.AddWithValue("@PONumber", txtPONumber.Text.Trim());
                         cmd.Parameters.AddWithValue("@Period", txtPeriodMonth.Text.Trim());
@@ -84,38 +82,50 @@ namespace PRSwebapp
 
                     string generatedPRSNo = "";
 
-                    // 3️⃣ Call stored procedure to insert
-                    // Stored procedure call
+                    // 3️⃣ Stored Procedure Insert
                     using (SqlCommand cmd = new SqlCommand("Pr_PRS", con))
                     {
                         cmd.CommandType = System.Data.CommandType.StoredProcedure;
 
-                        // Output parameter
                         var prsNoParam = new SqlParameter("@PRSNo", System.Data.SqlDbType.VarChar, 50)
                         {
                             Direction = System.Data.ParameterDirection.Output
                         };
                         cmd.Parameters.Add(prsNoParam);
 
-                        // Required input parameters
-
                         cmd.Parameters.AddWithValue("@PRSType", ddlPRSType.SelectedValue);
                         cmd.Parameters.AddWithValue("@PONumber", txtPONumber.Text.Trim());
                         cmd.Parameters.AddWithValue("@billno", txtBillNumber.Text.Trim());
-                        cmd.Parameters.AddWithValue("@billdate", string.IsNullOrWhiteSpace(txtBillDate.Text) ? (object)DBNull.Value : DateTime.Parse(txtBillDate.Text));
-                        cmd.Parameters.AddWithValue("@Inoviceamount", string.IsNullOrWhiteSpace(txtAmount.Text) ? (object)DBNull.Value : Convert.ToDecimal(txtAmount.Text));
-                        cmd.Parameters.AddWithValue("@duedate", string.IsNullOrWhiteSpace(txtDueDate.Text) ? (object)DBNull.Value : DateTime.Parse(txtDueDate.Text));
-                        cmd.Parameters.AddWithValue("@Natureofexpenses", string.IsNullOrWhiteSpace(txtNatureOfExp.Text) ? (object)DBNull.Value : txtNatureOfExp.Text.Trim());
-                        cmd.Parameters.AddWithValue("@PRSStatus", "New");
-                        cmd.Parameters.AddWithValue("@Period", string.IsNullOrWhiteSpace(txtPeriodMonth.Text) ? (object)DBNull.Value : txtPeriodMonth.Text.Trim());
-                        cmd.Parameters.AddWithValue("@Comments", string.IsNullOrWhiteSpace(txtComments.Text) ? (object)DBNull.Value : txtComments.Text.Trim());
+                        cmd.Parameters.AddWithValue("@billdate",
+                            string.IsNullOrWhiteSpace(txtBillDate.Text)
+                                ? (object)DBNull.Value : DateTime.Parse(txtBillDate.Text));
 
-                        // User info
+                        cmd.Parameters.AddWithValue("@Inoviceamount",
+                            string.IsNullOrWhiteSpace(txtAmount.Text)
+                                ? (object)DBNull.Value : Convert.ToDecimal(txtAmount.Text));
+
+                        cmd.Parameters.AddWithValue("@duedate",
+                            string.IsNullOrWhiteSpace(txtDueDate.Text)
+                                ? (object)DBNull.Value : DateTime.Parse(txtDueDate.Text));
+
+                        cmd.Parameters.AddWithValue("@Natureofexpenses",
+                            string.IsNullOrWhiteSpace(txtNatureOfExp.Text)
+                                ? (object)DBNull.Value : txtNatureOfExp.Text.Trim());
+
+                        cmd.Parameters.AddWithValue("@PRSStatus", "New");
+
+                        cmd.Parameters.AddWithValue("@Period",
+                            string.IsNullOrWhiteSpace(txtPeriodMonth.Text)
+                                ? (object)DBNull.Value : txtPeriodMonth.Text.Trim());
+
+                        cmd.Parameters.AddWithValue("@Comments",
+                            string.IsNullOrWhiteSpace(txtComments.Text)
+                                ? (object)DBNull.Value : txtComments.Text.Trim());
+
                         cmd.Parameters.AddWithValue("@user_ID", Session["UserID"]);
                         cmd.Parameters.AddWithValue("@user_role", Session["Role"]);
                         cmd.Parameters.AddWithValue("@TRANType", 0);
 
-                        // Employee info
                         cmd.Parameters.AddWithValue("@Emp_Code", Session["Emp_Code"] ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Emp_Name", Session["Emp_Name"] ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Emp_Designation", Session["Emp_Designation"] ?? (object)DBNull.Value);
@@ -123,16 +133,10 @@ namespace PRSwebapp
 
                         cmd.ExecuteNonQuery();
 
-
-                        // ✅ Assign output value to the variable declared outside
                         generatedPRSNo = prsNoParam.Value.ToString();
                     }
-                    ClearForm();
-                    Response.Redirect($"RingiPopupp.aspx?ringi={generatedPRSNo}");
 
-
-
-                    // 4️⃣ Upload files
+                    // 4️⃣ Upload Files (SupplierDocuments still uses SupplierName)
                     if (fuDocument.HasFiles)
                     {
                         string poNumber = txtPONumber.Text.Trim();
@@ -151,7 +155,7 @@ namespace PRSwebapp
                             using (SqlCommand cmdFile = new SqlCommand(
                                 "INSERT INTO SupplierDocuments (SupplierName, PONumber, FileName, FilePath) VALUES (@SupplierName, @PONumber, @FileName, @FilePath)", con))
                             {
-                                cmdFile.Parameters.AddWithValue("@SupplierName", txtSupplierCombo.Text.Trim());
+                                cmdFile.Parameters.AddWithValue("@SupplierName", txtSupplierCombo.Text.Trim()); // unchanged
                                 cmdFile.Parameters.AddWithValue("@PONumber", poNumber);
                                 cmdFile.Parameters.AddWithValue("@FileName", fileName);
                                 cmdFile.Parameters.AddWithValue("@FilePath", $"~/UploadedFiles/{poNumber}/{fileName}");
@@ -160,35 +164,31 @@ namespace PRSwebapp
                         }
                     }
 
-                    // 5️⃣ Update status if same PONumber exists
+                    // 5️⃣ Update ProcessStatus if previous PO exists
                     if (exists)
                     {
                         using (SqlCommand cmd = new SqlCommand(@"
-                    UPDATE SupplierPOEntry 
-                    SET ProcessStatus = 'Completed' 
-                    WHERE PONumber = @PONumber", con))
+                        UPDATE SupplierPOEntry
+                        SET ProcessStatus='Completed'
+                        WHERE PONumber=@PONumber", con))
                         {
                             cmd.Parameters.AddWithValue("@PONumber", txtPONumber.Text.Trim());
                             cmd.ExecuteNonQuery();
                         }
                     }
+
+                    ClearForm();
+                    Response.Redirect($"RingiPopupp.aspx?ringi={generatedPRSNo}");
                 }
 
-                ClearForm();
                 ClientScript.RegisterStartupScript(this.GetType(), "success", "alert('Saved successfully!');", true);
-            }
-            catch (SqlException sqlEx)
-            {
-                ClientScript.RegisterStartupScript(this.GetType(), "error", $"alert('SQL Error: {sqlEx.Message}');", true);
-                throw;
             }
             catch (Exception ex)
             {
-                ClientScript.RegisterStartupScript(this.GetType(), "error", $"alert('Error: {ex.Message}');", true);
+                ClientScript.RegisterStartupScript(this.GetType(), "err", $"alert('Error: {ex.Message}');", true);
                 throw;
             }
         }
-
 
         protected void btnClear_Click(object sender, EventArgs e)
         {
@@ -243,6 +243,8 @@ namespace PRSwebapp
                 default: return null;
             }
         }
+
+        // 6️⃣ FIXED FILTERED HISTORY (SupplierID JOIN)
         [WebMethod]
         public static List<Dictionary<string, string>> GetFilteredPOHistory(string supplierName, string agreementStart, string agreementEnd)
         {
@@ -252,14 +254,16 @@ namespace PRSwebapp
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
+
                 string sql = @"
-            SELECT s.SupplierName, d.Name AS Department, e.prstype, e.PONumber, e.PODate,
-                   e.POPaymentType, e.PaymentsApplicable, e.POAmount, e.InvoiceAmount,
-                   e.natureofexp, e.AgreementStart, e.AgreementEnd, e.RingNumber, e.ProcessStatus
-            FROM SupplierPOEntry e
-            INNER JOIN Suppliers s ON e.SupplierName = CAST(s.SupplierID AS VARCHAR(10))
-            LEFT JOIN Department d ON e.Department = d.ID
-            WHERE 1=1";
+                SELECT s.SupplierName, d.Name AS Department, e.prstype, e.PONumber,
+                       e.PODate, e.POPaymentType, e.PaymentsApplicable, e.POAmount,
+                       e.InvoiceAmount, e.natureofexp, e.AgreementStart, e.AgreementEnd,
+                       e.RingNumber, e.ProcessStatus
+                FROM SupplierPOEntry e
+                INNER JOIN Suppliers s ON e.SupplierID = s.SupplierID   -- FIXED
+                LEFT JOIN Department d ON e.Department = d.ID
+                WHERE 1=1";
 
                 if (!string.IsNullOrEmpty(supplierName))
                     sql += " AND s.SupplierName LIKE @s";
@@ -290,22 +294,25 @@ namespace PRSwebapp
                             string poNumber = dr["PONumber"].ToString();
                             string paymentsApplicable = dr["PaymentsApplicable"]?.ToString() ?? "";
 
-                            // Clean & split months robustly
                             paymentsApplicable = Regex.Replace(paymentsApplicable, "(processed|process)", "", RegexOptions.IgnoreCase);
-                            var months = Regex.Split(paymentsApplicable, @"[,\-/;\s]+")
-                                              .Select(NormalizeMonthName)
-                                              .Where(m => !string.IsNullOrEmpty(m))
-                                              .Distinct(StringComparer.OrdinalIgnoreCase)
-                                              .ToList();
 
-                            // Get processed months from PrePaymentSlips
+                            var months = Regex.Split(paymentsApplicable, @"[,\-/;\s]+")
+                                .Select(NormalizeMonthName)
+                                .Where(m => !string.IsNullOrEmpty(m))
+                                .Distinct(StringComparer.OrdinalIgnoreCase)
+                                .ToList();
+
                             HashSet<string> processedMonths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
                             using (SqlConnection con2 = new SqlConnection(connStr))
                             {
                                 con2.Open();
-                                using (SqlCommand cmdCheck = new SqlCommand("SELECT Period FROM PrsMaster WHERE PONumber=@po", con2))
+
+                                using (SqlCommand cmdCheck = new SqlCommand(
+                                    "SELECT Period FROM PrsMaster WHERE PONumber=@po", con2))
                                 {
                                     cmdCheck.Parameters.AddWithValue("@po", poNumber);
+
                                     using (SqlDataReader drCheck = cmdCheck.ExecuteReader())
                                     {
                                         while (drCheck.Read())
@@ -314,8 +321,8 @@ namespace PRSwebapp
                                             if (!string.IsNullOrWhiteSpace(dbMonths))
                                             {
                                                 foreach (var m in Regex.Split(dbMonths, @"[,\s;]+")
-                                                                       .Select(NormalizeMonthName)
-                                                                       .Where(x => !string.IsNullOrEmpty(x)))
+                                                    .Select(NormalizeMonthName)
+                                                    .Where(x => !string.IsNullOrEmpty(x)))
                                                 {
                                                     processedMonths.Add(m);
                                                 }
@@ -325,7 +332,6 @@ namespace PRSwebapp
                                 }
                             }
 
-                            // Add one row per month (Processed or Pending)
                             foreach (string month in months)
                             {
                                 string status = processedMonths.Contains(month) ? "Processed" : "Pending";
@@ -336,15 +342,18 @@ namespace PRSwebapp
                                     ["Department"] = dr["Department"].ToString(),
                                     ["prstype"] = dr["prstype"].ToString(),
                                     ["PONumber"] = poNumber,
-                                    ["PODate"] = dr["PODate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["PODate"]).ToString("yyyy-MM-dd"),
+                                    ["PODate"] =
+                                        dr["PODate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["PODate"]).ToString("yyyy-MM-dd"),
                                     ["POPaymentType"] = dr["POPaymentType"].ToString(),
                                     ["PaymentsApplicable"] = month,
                                     ["Status"] = status,
                                     ["POAmount"] = dr["POAmount"].ToString(),
                                     ["InvoiceAmount"] = dr["InvoiceAmount"].ToString(),
                                     ["natureofexp"] = dr["natureofexp"].ToString(),
-                                    ["AgreementStart"] = dr["AgreementStart"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementStart"]).ToString("yyyy-MM-dd"),
-                                    ["AgreementEnd"] = dr["AgreementEnd"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementEnd"]).ToString("yyyy-MM-dd"),
+                                    ["AgreementStart"] =
+                                        dr["AgreementStart"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementStart"]).ToString("yyyy-MM-dd"),
+                                    ["AgreementEnd"] =
+                                        dr["AgreementEnd"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementEnd"]).ToString("yyyy-MM-dd"),
                                     ["RingNumber"] = dr["RingNumber"].ToString(),
                                     ["ProcessStatus"] = dr["ProcessStatus"].ToString()
                                 });
@@ -356,9 +365,5 @@ namespace PRSwebapp
 
             return results;
         }
-
-
-
     }
-
 }
