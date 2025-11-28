@@ -67,8 +67,8 @@
                         <h5 class="modal-title" id="ringiModalLabel">Acknowledgement</h5>
                     </div>
                     <div class="modal-body">
-                        <p><strong>RINGI Number:</strong> <asp:Label ID="lblRingiNumber" runat="server"></asp:Label></p>
-                        <p>Thank you for submitting your request. Your RINGI will be forwarded for further processing.</p>
+                        <p><strong>PRS Number:</strong> <asp:Label ID="lblRingiNumber" runat="server"></asp:Label></p>
+                        <p>Thank you for submitting your request. Your PRS will be forwarded for further processing.</p>
                     </div>
                     <div class="modal-footer justify-content-center">
                         <asp:Button ID="btnClose" runat="server" CssClass="btn btn-primary" Text="Close" OnClick="btnClose_Click" />

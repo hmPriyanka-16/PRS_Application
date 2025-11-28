@@ -13,7 +13,7 @@
             background: linear-gradient(180deg, #ffffff, #e6e0ff);
             border-radius: 12px; 
             padding: 20px; 
-            max-width: 1000px; 
+            max-width: 1100px; 
             margin: 20px auto; 
             box-shadow: 0 6px 18px rgba(0,0,0,0.12); 
             border: 1px solid rgba(108,92,231,0.3); 
@@ -134,162 +134,125 @@
     </style>
 
     <script>
+        // ------------------ HELPER FUNCTIONS ------------------
         let selectedFiles = [];
 
-        // --- EXPENSE ROWS ---
+        function serializeTable(tableId) {
+            let rows = document.querySelectorAll(`#${tableId} tr`);
+            let data = [];
+            rows.forEach(row => {
+                let inputs = row.querySelectorAll("input");
+                if (inputs.length > 0) {
+                    if (tableId === "tblExpense") {
+                        data.push({
+                            Particulars: inputs[0].value,
+                            Purpose: inputs[1].value,
+                            BillNo: inputs[2].value,
+                            BillDate: inputs[3].value,
+                            Amount: inputs[4].value
+                        });
+                    } else if (tableId === "tblConveyance") {
+                        data.push({
+                            Purpose: inputs[0].value,
+                            From: inputs[1].value,
+                            To: inputs[2].value,
+                            Mode: inputs[3].value,
+                            Distance: inputs[4].value,
+                            Amount: inputs[5].value
+                        });
+                    }
+                }
+            });
+            return JSON.stringify(data);
+        }
+
+        function prepareHiddenFields() {
+            document.getElementById('<%= hfExpenseData.ClientID %>').value = serializeTable("tblExpense");
+            document.getElementById('<%= hfConveyanceData.ClientID %>').value = serializeTable("tblConveyance");
+        }
+
+        // Expense table functions
         function addExpenseRow(particulars = '', purpose = '', billNo = '', billDate = '', amount = '') {
             var table = document.getElementById("tblExpense");
             var row = table.insertRow(-1);
-            row.innerHTML = "<td><input type='text' class='form-control' value='" + particulars + "'/></td>" +
-                "<td><input type='text' class='form-control' value='" + purpose + "'/></td>" +
-                "<td><input type='text' class='form-control' value='" + billNo + "'/></td>" +
-                "<td><input type='date' class='form-control' value='" + billDate + "'/></td>" +
-                "<td><input type='number' step='0.01' class='form-control amount-input' value='" + amount + "' oninput='updateExpenseTotal()'/></td>" +
-                "<td><button type='button' class='btn-delete' onclick='deleteExpenseRow(this)'>✖</button></td>";
+            row.innerHTML =
+                `<td class='slno'></td>
+                <td><input type='text' class='form-control' value='${particulars}'/></td>
+                <td><input type='text' class='form-control' value='${purpose}'/></td>
+                <td><input type='text' class='form-control' value='${billNo}'/></td>
+                <td><input type='date' class='form-control' value='${billDate}'/></td>
+                <td><input type='number' step='0.01' class='form-control amount-input' value='${amount}' oninput='updateExpenseTotal()'/></td>
+                <td><button type='button' class='btn-delete' onclick='deleteExpenseRow(this)'>✖</button></td>`;
+            updateExpenseSLNO();
             updateExpenseTotal();
         }
 
         function deleteExpenseRow(btn) {
             var table = btn.closest("tbody");
-            if (table.rows.length > 1) {
-                var row = btn.parentNode.parentNode;
-                row.parentNode.removeChild(row);
-            } else {
-                alert("At least one row must be present.");
-            }
+            if (table.rows.length > 1) btn.parentNode.parentNode.remove();
+            updateExpenseSLNO();
             updateExpenseTotal();
         }
 
+        function updateExpenseSLNO() {
+            document.querySelectorAll("#tblExpense tr").forEach((row, i) => row.querySelector(".slno").innerText = i + 1);
+        }
+
         function updateExpenseTotal() {
-            var table = document.getElementById("tblExpense");
-            var total = 0;
-            table.querySelectorAll('.amount-input').forEach(input => {
-                var val = parseFloat(input.value) || 0;
-                total += val;
-            });
+            let total = 0;
+            document.querySelectorAll('.amount-input').forEach(input => total += parseFloat(input.value) || 0);
             document.getElementById('expenseTotal').innerText = total.toFixed(2);
         }
 
-        // --- LOCAL CONVEYANCE ROWS ---
+        // Conveyance table functions
         function addConveyanceRow(purpose = '', fromPlace = '', toPlace = '', mode = '', distance = '', amount = '') {
             var table = document.getElementById("tblConveyance");
             var row = table.insertRow(-1);
-            row.innerHTML = "<td><input type='text' class='form-control' value='" + purpose + "'/></td>" +
-                "<td><input type='text' class='form-control' value='" + fromPlace + "'/></td>" +
-                "<td><input type='text' class='form-control' value='" + toPlace + "'/></td>" +
-                "<td><input type='text' class='form-control' value='" + mode + "'/></td>" +
-                "<td><input type='number' class='form-control' value='" + distance + "'/></td>" +
-                "<td><input type='number' step='0.01' class='form-control conveyance-amount' value='" + amount + "' oninput='updateConveyanceTotal()'/></td>" +
-                "<td><button type='button' class='btn-delete' onclick='deleteConveyanceRow(this)'>✖</button></td>";
+            row.innerHTML =
+                `<td class='slno'></td>
+                <td><input type='text' class='form-control' value='${purpose}'/></td>
+                <td><input type='text' class='form-control' value='${fromPlace}'/></td>
+                <td><input type='text' class='form-control' value='${toPlace}'/></td>
+                <td><input type='text' class='form-control' value='${mode}'/></td>
+                <td><input type='number' class='form-control' value='${distance}'/></td>
+                <td><input type='number' step='0.01' class='form-control conveyance-amount' value='${amount}' oninput='updateConveyanceTotal()'/></td>
+                <td><button type='button' class='btn-delete' onclick='deleteConveyanceRow(this)'>✖</button></td>`;
+            updateConveyanceSLNO();
             updateConveyanceTotal();
         }
 
         function deleteConveyanceRow(btn) {
             var table = btn.closest("tbody");
-            if (table.rows.length > 1) {
-                var row = btn.parentNode.parentNode;
-                row.parentNode.removeChild(row);
-            } else {
-                alert("At least one row must be present.");
-            }
+            if (table.rows.length > 1) btn.parentNode.parentNode.remove();
+            updateConveyanceSLNO();
             updateConveyanceTotal();
         }
 
+        function updateConveyanceSLNO() {
+            document.querySelectorAll("#tblConveyance tr").forEach((row, i) => row.querySelector(".slno").innerText = i + 1);
+        }
+
         function updateConveyanceTotal() {
-            var table = document.getElementById("tblConveyance");
-            var total = 0;
-            table.querySelectorAll('.conveyance-amount').forEach(input => {
-                var val = parseFloat(input.value) || 0;
-                total += val;
-            });
+            let total = 0;
+            document.querySelectorAll('.conveyance-amount').forEach(input => total += parseFloat(input.value) || 0);
             document.getElementById('conveyanceTotal').innerText = total.toFixed(2);
         }
 
-        // --- FILE UPLOAD HANDLING ---
-        function handleFileSelection(input) {
-            const newFiles = Array.from(input.files);
-            newFiles.forEach(file => {
-                if (!selectedFiles.some(f => f.name === file.name && f.size === file.size))
-                    selectedFiles.push(file);
-            });
-            renderFileList(input);
-        }
-
-        function renderFileList(input) {
-            const container = document.getElementById('fileListContainer');
-            container.innerHTML = '';
-            selectedFiles.forEach((file, index) => {
-                const div = document.createElement('div');
-                const nameSpan = document.createElement('span');
-                nameSpan.innerText = file.name;
-                const removeBtn = document.createElement('button');
-                removeBtn.type = 'button';
-                removeBtn.className = 'btn btn-sm btn-outline-danger';
-                removeBtn.innerText = '✖';
-                removeBtn.onclick = () => { removeFile(index, input); };
-                div.appendChild(nameSpan);
-                div.appendChild(removeBtn);
-                container.appendChild(div);
-            });
-
-            const dt = new DataTransfer();
-            selectedFiles.forEach(f => dt.items.add(f));
-            input.files = dt.files;
-        }
-
-        function removeFile(index, input) {
-            selectedFiles.splice(index, 1);
-            renderFileList(input);
-        }
-
-        // --- CLEAR FUNCTIONS ---
-        function clearExpenseForm() {
-            document.getElementById("tblExpense").innerHTML = "";
-            addExpenseRow();
-            document.getElementById('expenseTotal').innerText = "0.00";
-            selectedFiles = [];
-            const fileInput = document.getElementById('fuExpense');
-            fileInput.value = '';
-            document.getElementById('fileListContainer').innerHTML = '';
-        }
-
-        function clearAdvanceForm() {
-            document.getElementById('<%= txtAdvPurpose.ClientID %>').value = '';
-            document.getElementById('<%= txtAdvNature.ClientID %>').value = '';
-            document.getElementById('<%= txtAdvAmount.ClientID %>').value = '';
-            document.getElementById('<%= txtAdvComments.ClientID %>').value = '';
-        }
-
-        function clearConveyanceForm() {
-            document.getElementById("tblConveyance").innerHTML = "";
-            addConveyanceRow();
-            document.getElementById('conveyanceTotal').innerText = "0.00";
-        }
-
+        // On page load
         window.onload = function () {
             addExpenseRow();
             addConveyanceRow();
-        }
+        };
     </script>
 </asp:Content>
 
 <asp:Content ID="Content2" ContentPlaceHolderID="ContentPlaceHolder1" runat="server">
-<div class="container mt-4 mb-5">
+    <!-- Hidden fields to store JSON for server -->
+    <asp:HiddenField ID="hfExpenseData" runat="server" />
+    <asp:HiddenField ID="hfConveyanceData" runat="server" />
 
-    <!-- EMPLOYEE DETAILS -->
-    <div class="form-card">
-        <div class="form-title">Employee Details</div>
-        <div class="row g-2 mb-3">
-            <div class="col-md-3"><label>Employee ID</label><asp:TextBox ID="txtEmpID" placeholder="Employee ID" runat="server" CssClass="form-control" /></div>
-            <div class="col-md-3"><label>Name</label><asp:TextBox ID="txtName" placeholder="Name" runat="server" CssClass="form-control" /></div>
-            <div class="col-md-3"><label>Department</label><asp:TextBox ID="txtDept" Placeholder="Department" runat="server" CssClass="form-control" /></div>
-            <div class="col-md-3"><label>Designation</label><asp:TextBox ID="txtDesig" placeholder="Designation" runat="server" CssClass="form-control" /></div>
-        </div>
-        <div class="row g-2 mb-3">
-            <div class="col-md-3"><label>Date</label><asp:TextBox ID="txtDate" runat="server" TextMode="Date" CssClass="form-control" /></div>
-        </div>
+    <div class="container mt-4 mb-5">
 
-        <!-- NAV TABS -->
         <ul class="nav nav-tabs" id="claimTabs">
             <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab" href="#expenseTab">Expense Claim</a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#advanceTab">Advance Claim</a></li>
@@ -298,93 +261,85 @@
 
         <div class="tab-content mt-3">
 
-            <!-- EXPENSE CLAIM -->
+            <!-- Expense Tab -->
             <div class="tab-pane fade show active" id="expenseTab">
                 <div class="section-title">Expense Claim</div>
                 <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Particulars</th>
-                            <th>Purpose</th>
-                            <th>Bill No</th>
-                            <th>Bill Date</th>
-                            <th>Amount</th>
-                            <th style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                                Action
-                                <button type="button" class="btn btn-secondary btn-plus" onclick="addExpenseRow()">➕</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tblExpense"></tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="4" style="text-align:right;"><strong>Total:</strong></td>
-                            <td colspan="2" id="expenseTotal">0.00</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>SL No</th>
+                                <th>Particulars</th>
+                                <th>Purpose</th>
+                                <th>Bill No</th>
+                                <th>Bill Date</th>
+                                <th>Amount</th>
+                                <th style="text-align:center;">
+                                    Action
+                                    <button type="button" class="btn btn-secondary btn-plus" onclick="addExpenseRow()">➕</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblExpense"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5" style="text-align:right;"><strong>Total:</strong></td>
+                                <td colspan="2" id="expenseTotal">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-
-                <div class="mb-2 d-flex align-items-center">
-                    <input type="file" id="fuExpense" multiple class="form-control form-control-sm w-auto" style="max-width: 250px;" onchange="handleFileSelection(this)" />
-                    <div id="fileListContainer" class="ms-3"></div>
-                </div>
-
-                <asp:Button ID="btnSaveExpense" runat="server" CssClass="btn btn-headercolor" Text="💾 Save" />
-                <asp:Button ID="btnClearExpense" runat="server" CssClass="btn btn-secondary ms-2" Text="🧹 Clear" OnClientClick="clearExpenseForm(); return false;" />
+                <asp:Button ID="btnSaveExpense" runat="server" CssClass="btn btn-headercolor" Text="💾 Save" OnClientClick="prepareHiddenFields();" OnClick="btnSaveExpense_Click" />
             </div>
 
-            <!-- ADVANCE CLAIM -->
+            <!-- Advance Tab -->
             <div class="tab-pane fade" id="advanceTab">
                 <div class="section-title">Advance Claim</div>
                 <div class="row g-2 mb-2">
-                    <div class="col-md-4"><label>Purpose</label><asp:TextBox ID="txtAdvPurpose" placeholder="Purpose" runat="server" CssClass="form-control" /></div>
-                    <div class="col-md-4"><label>Nature Of Exp</label><asp:TextBox ID="txtAdvNature" placeholder="Nature Of Exp" runat="server" CssClass="form-control" /></div>
-                    <div class="col-md-4"><label>Amount</label><asp:TextBox ID="txtAdvAmount" placeholder="Amount" runat="server" CssClass="form-control" /></div>
+                    <div class="col-md-4"><label>Purpose</label><asp:TextBox ID="txtAdvPurpose" runat="server" CssClass="form-control" /></div>
+                    <div class="col-md-4"><label>Nature</label><asp:TextBox ID="txtAdvNature" runat="server" CssClass="form-control" /></div>
+                    <div class="col-md-4"><label>Amount</label><asp:TextBox ID="txtAdvAmount" runat="server" CssClass="form-control" /></div>
                 </div>
                 <div class="row g-2 mb-2">
-                    <div class="col-md-12"><label>Comments</label><asp:TextBox ID="txtAdvComments" placeholder="Comments" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" /></div>
+                    <div class="col-md-12"><label>Comments</label><asp:TextBox ID="txtAdvComments" runat="server" CssClass="form-control" TextMode="MultiLine" Rows="3" /></div>
                 </div>
-                <asp:Button ID="btnSaveAdvance" runat="server" CssClass="btn btn-headercolor" Text="💾 Save" />
-                <asp:Button ID="btnClearAdvance" runat="server" CssClass="btn btn-secondary ms-2" Text="🧹 Clear" OnClientClick="clearAdvanceForm(); return false;" />
+                <asp:Button ID="btnSaveAdvance" runat="server" CssClass="btn btn-headercolor" Text="💾 Save" OnClientClick="prepareHiddenFields();" />
             </div>
 
-            <!-- LOCAL CONVEYANCE -->
+            <!-- Local Conveyance Tab -->
             <div class="tab-pane fade" id="localTab">
                 <div class="section-title">Local Conveyance</div>
                 <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Purpose</th>
-                            <th>From</th>
-                            <th>To</th>
-                            <th>Mode</th>
-                            <th>Distance</th>
-                            <th>Amount</th>
-                            <th style="display: flex; align-items: center; justify-content: center; gap: 4px;">
-                                Action
-                                <button type="button" class="btn btn-secondary btn-plus" onclick="addConveyanceRow()">➕</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="tblConveyance"></tbody>
-                    <tfoot>
-                        <tr>
-                            <td colspan="5" style="text-align:right;"><strong>Total:</strong></td>
-                            <td colspan="2" id="conveyanceTotal">0.00</td>
-                        </tr>
-                    </tfoot>
-                </table>
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th>SL No</th>
+                                <th>Purpose</th>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Mode</th>
+                                <th>Distance</th>
+                                <th>Amount</th>
+                                <th style="text-align:center;">
+                                    Action
+                                    <button type="button" class="btn btn-secondary btn-plus" onclick="addConveyanceRow()">➕</button>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblConveyance"></tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="6" style="text-align:right;"><strong>Total:</strong></td>
+                                <td colspan="2" id="conveyanceTotal">0.00</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
-                <asp:Button ID="btnSaveLocal" runat="server" CssClass="btn btn-headercolor" Text="💾 Save" />
-                <asp:Button ID="btnClearLocal" runat="server" CssClass="btn btn-secondary ms-2" Text="🧹 Clear" OnClientClick="clearConveyanceForm(); return false;" />
+                <asp:Button ID="btnSaveLocal" runat="server" CssClass="btn btn-headercolor" Text="💾 Save" OnClientClick="prepareHiddenFields();" />
             </div>
 
         </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </asp:Content>

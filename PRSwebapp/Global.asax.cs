@@ -18,6 +18,7 @@ namespace PRSwebapp
         protected void Session_Start(object sender, EventArgs e)
         {
             Session["username"] = "";
+            Session["userId"] = "";
             Session["EmpName"] = "";
             Session["depid"] = "";
             Session["department"] = "";
@@ -41,7 +42,9 @@ namespace PRSwebapp
 
         protected void Session_End(object sender, EventArgs e)
         {
+
             Session["username"] = "";
+            Session["userId"] = "";
             Session["EmpName"] = "";
             Session["depid"] = "";
             Session["department"] = "";

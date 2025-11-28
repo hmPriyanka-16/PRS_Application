@@ -101,6 +101,16 @@
             </div>
 
              <div class="col-md-4">
+                 <label class="form-label">Bill Period From</label>
+                 <asp:TextBox ID="txtBillPeriodFrom" runat="server" TextMode="Date" CssClass="form-control small-input" />
+             </div>
+
+             <div class="col-md-4">
+                 <label class="form-label">Bill Period To</label>
+                 <asp:TextBox ID="txtBillPeriodTo" runat="server" TextMode="Date" CssClass="form-control small-input" />
+             </div>
+
+             <div class="col-md-4">
                  <label class="form-label">Invoice Amount</label>
                  <asp:TextBox ID="txtAmount" runat="server" CssClass="form-control small-input" placeholder="Invoice Amount" onkeyup="formatAmount(this);" />
              </div>

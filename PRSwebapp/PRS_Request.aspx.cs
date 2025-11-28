@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Web;
 using System.Web.Services;
 using System.Web.UI;
 
@@ -130,6 +131,17 @@ namespace PRSwebapp
                         cmd.Parameters.AddWithValue("@Emp_Name", Session["Emp_Name"] ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Emp_Designation", Session["Emp_Designation"] ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Emp_Department", Session["Emp_Department"] ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@BillFrom",
+                           string.IsNullOrWhiteSpace(txtBillPeriodFrom.Text)
+                              ? (object)DBNull.Value
+                              : DateTime.Parse(txtBillPeriodFrom.Text));
+
+                        cmd.Parameters.AddWithValue("@BillTo",
+                            string.IsNullOrWhiteSpace(txtBillPeriodTo.Text)
+                                ? (object)DBNull.Value
+                                : DateTime.Parse(txtBillPeriodTo.Text));
+
+
 
                         cmd.ExecuteNonQuery();
 
@@ -177,8 +189,14 @@ namespace PRSwebapp
                         }
                     }
 
-                    ClearForm();
+                    
+                    // 6️⃣ Redirect to popup with correct PRS
                     Response.Redirect($"RingiPopupp.aspx?ringi={generatedPRSNo}");
+
+                    // 7️⃣ Clear AFTER redirect (otherwise txtPONumber becomes blank)
+                    ClearForm();
+
+
                 }
 
                 ClientScript.RegisterStartupScript(this.GetType(), "success", "alert('Saved successfully!');", true);
@@ -251,6 +269,13 @@ namespace PRSwebapp
             var results = new List<Dictionary<string, string>>();
             string connStr = ConfigurationManager.ConnectionStrings["PRSConnectionString"].ConnectionString;
 
+            // 🔥 Get Department ID from Session
+            int depID = 0;
+            if (HttpContext.Current.Session["deptid"] != null)
+            {
+                int.TryParse(HttpContext.Current.Session["deptid"].ToString(), out depID);
+            }
+
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
@@ -265,6 +290,10 @@ namespace PRSwebapp
                 LEFT JOIN Department d ON e.Department = d.ID
                 WHERE 1=1";
 
+                // 🔥 Filter by Department
+                if (depID > 0)
+                    sql += " AND e.Department = @DepID";
+
                 if (!string.IsNullOrEmpty(supplierName))
                     sql += " AND s.SupplierName LIKE @s";
 
@@ -278,6 +307,10 @@ namespace PRSwebapp
 
                 using (SqlCommand cmd = new SqlCommand(sql, con))
                 {
+                    // 🔥 Add Department parameter
+                    if (depID > 0)
+                        cmd.Parameters.AddWithValue("@DepID", depID);
+
                     if (!string.IsNullOrEmpty(supplierName))
                         cmd.Parameters.AddWithValue("@s", "%" + supplierName + "%");
 

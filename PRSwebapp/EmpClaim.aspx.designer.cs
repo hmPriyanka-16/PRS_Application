@@ -15,49 +15,22 @@ namespace PRSwebapp
     {
 
         /// <summary>
-        /// txtEmpID control.
+        /// hfExpenseData control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtEmpID;
+        protected global::System.Web.UI.WebControls.HiddenField hfExpenseData;
 
         /// <summary>
-        /// txtName control.
+        /// hfConveyanceData control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtName;
-
-        /// <summary>
-        /// txtDept control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDept;
-
-        /// <summary>
-        /// txtDesig control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDesig;
-
-        /// <summary>
-        /// txtDate control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDate;
+        protected global::System.Web.UI.WebControls.HiddenField hfConveyanceData;
 
         /// <summary>
         /// btnSaveExpense control.
@@ -67,15 +40,6 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSaveExpense;
-
-        /// <summary>
-        /// btnClearExpense control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClearExpense;
 
         /// <summary>
         /// txtAdvPurpose control.
@@ -123,15 +87,6 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.Button btnSaveAdvance;
 
         /// <summary>
-        /// btnClearAdvance control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClearAdvance;
-
-        /// <summary>
         /// btnSaveLocal control.
         /// </summary>
         /// <remarks>
@@ -139,14 +94,5 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSaveLocal;
-
-        /// <summary>
-        /// btnClearLocal control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnClearLocal;
     }
 }

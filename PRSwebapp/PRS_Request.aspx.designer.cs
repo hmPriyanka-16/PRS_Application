@@ -105,6 +105,24 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtDueDate;
 
         /// <summary>
+        /// txtBillPeriodFrom control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtBillPeriodFrom;
+
+        /// <summary>
+        /// txtBillPeriodTo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtBillPeriodTo;
+
+        /// <summary>
         /// txtAmount control.
         /// </summary>
         /// <remarks>
