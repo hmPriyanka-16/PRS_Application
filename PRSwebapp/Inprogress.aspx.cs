@@ -55,6 +55,7 @@ namespace PRSwebapp
             {
                 string prsNo = e.CommandArgument.ToString();
 
+                // Fetch PRS Main Details
                 DataTable dt = new DataTable();
                 using (SqlConnection con = new SqlConnection(connString))
                 using (SqlCommand cmd = new SqlCommand("SELECT * FROM vw_PRSlist WHERE PRSNo=@PRSNo", con))
@@ -72,113 +73,60 @@ namespace PRSwebapp
                     string prsType = row["PRSType"].ToString();
                     string info = "<table class='table table-borderless table-sm'><tbody>";
 
-                    // PRS No
-                    if (row["PRSNo"] != DBNull.Value && !string.IsNullOrEmpty(row["PRSNo"].ToString()))
-                        info += $"<tr><th style='width:150px;'>PRS No:</th><td>{row["PRSNo"]}</td></tr>";
-
-                    // PRS Type
-                    if (!string.IsNullOrEmpty(prsType))
-                        info += $"<tr><th>PRS Type:</th><td>{prsType}</td></tr>";
-
-                    // Employee info
-                    if (prsType == "Expense" || prsType == "Advance" || prsType == "Conveyance")
-                    {
-                        if (row["Emp_Name"] != DBNull.Value && !string.IsNullOrEmpty(row["Emp_Name"].ToString()))
-                            info += $"<tr><th>Employee Name:</th><td>{row["Emp_Name"]}</td></tr>";
-
-                        if (row["Emp_code"] != DBNull.Value && !string.IsNullOrEmpty(row["Emp_code"].ToString()))
-                            info += $"<tr><th>Employee ID:</th><td>{row["Emp_code"]}</td></tr>";
-                    }
-                    else
-                    {
-                        if (row["SupplierName"] != DBNull.Value && !string.IsNullOrEmpty(row["SupplierName"].ToString()))
-                            info += $"<tr><th>Supplier:</th><td>{row["SupplierName"]}</td></tr>";
-                    }
-
-                    // Department
-                    if (row["Department"] != DBNull.Value && !string.IsNullOrEmpty(row["Department"].ToString()))
-                        info += $"<tr><th>Department:</th><td>{row["Department"]}</td></tr>";
-
-                    // Amount
-                    if (row["Inoviceamount"] != DBNull.Value)
-                        info += $"<tr><th>Amount:</th><td>{Convert.ToDecimal(row["Inoviceamount"]):N2}</td></tr>";
-
-                    // Bill No
-                    if (row["billno"] != DBNull.Value && !string.IsNullOrEmpty(row["billno"].ToString()))
-                        info += $"<tr><th>Bill No:</th><td>{row["billno"]}</td></tr>";
-
-                    // Bill Date
-                    if (row["billdate"] != DBNull.Value)
-                        info += $"<tr><th>Bill Date:</th><td>{Convert.ToDateTime(row["billdate"]).ToString("dd-MMM-yyyy")}</td></tr>";
-
-                    // Due Date
-                    if (row["duedate"] != DBNull.Value)
-                        info += $"<tr><th>Due Date:</th><td>{Convert.ToDateTime(row["duedate"]).ToString("dd-MMM-yyyy")}</td></tr>";
-
-                    // Nature of Expenses
-                    if (row["Natureofexpenses"] != DBNull.Value && !string.IsNullOrEmpty(row["Natureofexpenses"].ToString()))
-                        info += $"<tr><th>Nature of Expenses:</th><td>{row["Natureofexpenses"]}</td></tr>";
+                    // PRS Info
+                    info += AddRow("PRS No", row["PRSNo"]);
+                    info += AddRow("PRS Type", prsType);
+                    info += AddRow("Employee Name", row["Emp_Name"]);
+                    info += AddRow("Employee ID", row["Emp_code"]);
+                    info += AddRow("Department", row["Department"]);
+                    info += AddRow("Amount", ConvertDecimal(row["Inoviceamount"]));
+                    info += AddRow("Bill No", row["billno"]);
+                    info += AddRow("Bill Date", ConvertDate(row["billdate"]));
+                    info += AddRow("Due Date", ConvertDate(row["duedate"]));
+                    info += AddRow("Nature of Expenses", row["Natureofexpenses"]);
 
                     info += "</tbody></table>";
 
-                    // PRS Claims
-                    if (prsType == "Expense" || prsType == "Advance" || prsType == "Conveyance")
+                    // ★★★★★ CLAIM DETAILS FROM SP ★★★★★
+                    DataTable dtClaims = new DataTable();
+                    using (SqlConnection con = new SqlConnection(connString))
+                    using (SqlCommand cmd = new SqlCommand("EXEC PR_PRCclaims @PRSNo", con))
                     {
-                        DataTable dtClaims = new DataTable();
-                        using (SqlConnection con = new SqlConnection(connString))
-                        using (SqlCommand cmd = new SqlCommand("SELECT * FROM PRS_Claims WHERE PRSNO=@PRSNo ORDER BY SLno ASC", con))
+                        cmd.Parameters.AddWithValue("@PRSNo", prsNo);
+                        using (SqlDataAdapter da = new SqlDataAdapter(cmd))
                         {
-                            cmd.Parameters.AddWithValue("@PRSNo", prsNo);
-                            using (SqlDataAdapter da = new SqlDataAdapter(cmd))
-                            {
-                                da.Fill(dtClaims);
-                            }
-                        }
-
-                        if (dtClaims.Rows.Count > 0)
-                        {
-                            info += "<hr/><b>Claim Details:</b><br/>";
-                            info += "<table class='table table-sm table-bordered'><thead><tr>";
-
-                            // Determine columns to display dynamically
-                            string[] allColumns = { "SLno", "PARTICULARS", "PARTICULARS2", "PURPOSE", "BillNo_Mode", "BillDate_Distance", "Comments","Amount" };
-                            List<string> displayColumns = new List<string>();
-
-                            foreach (string col in allColumns)
-                            {
-                                foreach (DataRow r in dtClaims.Rows)
-                                {
-                                    if (r[col] != DBNull.Value && !string.IsNullOrEmpty(r[col].ToString()))
-                                    {
-                                        displayColumns.Add(col);
-                                        break;
-                                    }
-                                }
-                            }
-
-                            // Generate headers
-                            foreach (string col in displayColumns)
-                                info += $"<th>{col}</th>";
-
-                            info += "</tr></thead><tbody>";
-
-                            // Generate rows
-                            foreach (DataRow claim in dtClaims.Rows)
-                            {
-                                info += "<tr>";
-                                foreach (string col in displayColumns)
-                                {
-                                    string val = claim[col] != DBNull.Value ? claim[col].ToString() : "";
-                                    info += $"<td>{val}</td>";
-                                }
-                                info += "</tr>";
-                            }
-
-                            info += "</tbody></table>";
+                            da.Fill(dtClaims);
                         }
                     }
 
-                    // Clear trail repeater
+                    if (dtClaims.Rows.Count > 0)
+                    {
+                        info += "<hr/><b>Claim Details:</b><br/>";
+                        info += "<table class='table table-sm table-bordered'><thead><tr>";
+
+                        // Auto headers
+                        foreach (DataColumn col in dtClaims.Columns)
+                        {
+                            info += $"<th>{col.ColumnName}</th>";
+                        }
+
+                        info += "</tr></thead><tbody>";
+
+                        // Auto rows
+                        foreach (DataRow claim in dtClaims.Rows)
+                        {
+                            info += "<tr>";
+                            foreach (DataColumn col in dtClaims.Columns)
+                            {
+                                info += $"<td>{claim[col]?.ToString()}</td>";
+                            }
+                            info += "</tr>";
+                        }
+
+                        info += "</tbody></table>";
+                    }
+
+                    // Clear and bind trail
                     rpTrailHistory.DataSource = null;
                     rpTrailHistory.DataBind();
 
@@ -192,10 +140,10 @@ namespace PRSwebapp
                     ScriptManager.RegisterStartupScript(this, this.GetType(), "ShowPRSModal", script, true);
                 }
             }
+
             else if (e.CommandName == "ShowTrail")
             {
-                string[] args = e.CommandArgument.ToString().Split('|');
-                string prsNo = args[0];
+                string prsNo = e.CommandArgument.ToString();
 
                 DataTable dtTrail = new DataTable();
                 using (SqlConnection con = new SqlConnection(connString))
@@ -233,6 +181,28 @@ namespace PRSwebapp
 
                 ScriptManager.RegisterStartupScript(this, this.GetType(), "ShowTrailModal", script, true);
             }
+        }
+
+        // **************** HELPER FUNCTIONS ****************
+
+        private string AddRow(string label, object value)
+        {
+            if (value == null || value == DBNull.Value || string.IsNullOrEmpty(value.ToString()))
+                return "";
+
+            return $"<tr><th style='width:150px'>{label}:</th><td>{value}</td></tr>";
+        }
+
+        private string ConvertDate(object value)
+        {
+            if (value == DBNull.Value) return "";
+            return Convert.ToDateTime(value).ToString("dd-MMM-yyyy");
+        }
+
+        private string ConvertDecimal(object value)
+        {
+            if (value == DBNull.Value) return "";
+            return Convert.ToDecimal(value).ToString("N2");
         }
     }
 }
