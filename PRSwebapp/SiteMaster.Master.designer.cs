@@ -33,6 +33,24 @@ namespace PRSwebapp
         protected global::System.Web.UI.HtmlControls.HtmlForm form1;
 
         /// <summary>
+        /// imgHospitalLogo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlImage imgHospitalLogo;
+
+        /// <summary>
+        /// lblHospitalName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Label lblHospitalName;
+
+        /// <summary>
         /// lblUserName control.
         /// </summary>
         /// <remarks>
@@ -42,13 +60,49 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.Label lblUserName;
 
         /// <summary>
-        /// btnLogout control.
+        /// lblUserRole control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnLogout;
+        protected global::System.Web.UI.WebControls.Label lblUserRole;
+
+        /// <summary>
+        /// btnHeaderLogout control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnHeaderLogout;
+
+        /// <summary>
+        /// ddlRole control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlRole;
+
+        /// <summary>
+        /// ddlHospital control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlHospital;
+
+        /// <summary>
+        /// btnSwitchRole control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSwitchRole;
 
         /// <summary>
         /// topNav control.
@@ -60,6 +114,33 @@ namespace PRSwebapp
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl topNav;
 
         /// <summary>
+        /// lnkSupplierDetailsTop control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkSupplierDetailsTop;
+
+        /// <summary>
+        /// lnkSupplierregTop control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkSupplierregTop;
+
+        /// <summary>
+        /// lnkRoleDetailsTop control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkRoleDetailsTop;
+
+        /// <summary>
         /// sidebar control.
         /// </summary>
         /// <remarks>
@@ -69,13 +150,40 @@ namespace PRSwebapp
         protected global::System.Web.UI.HtmlControls.HtmlGenericControl sidebar;
 
         /// <summary>
-        /// btnSidebarLogout control.
+        /// lnkSupplierDetailsSide control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Button btnSidebarLogout;
+        protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkSupplierDetailsSide;
+
+        /// <summary>
+        /// lnkSupplierreg control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkSupplierreg;
+
+        /// <summary>
+        /// lnkRoleDetailsSide control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.HtmlControls.HtmlAnchor lnkRoleDetailsSide;
+
+        /// <summary>
+        /// Button1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.LinkButton Button1;
 
         /// <summary>
         /// ContentPlaceHolder1 control.

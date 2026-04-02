@@ -24,31 +24,13 @@ namespace PRSwebapp
         protected global::System.Web.UI.ScriptManager ScriptManager1;
 
         /// <summary>
-        /// txtSupplierCombo control.
+        /// rfvRingNumber control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtSupplierCombo;
-
-        /// <summary>
-        /// txtDepartmentCombo control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.TextBox txtDepartmentCombo;
-
-        /// <summary>
-        /// ddlPRSType control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.DropDownList ddlPRSType;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvRingNumber;
 
         /// <summary>
         /// txtRingNumber control.
@@ -60,6 +42,42 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtRingNumber;
 
         /// <summary>
+        /// btnFetchRing control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnFetchRing;
+
+        /// <summary>
+        /// rfvSupplier control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvSupplier;
+
+        /// <summary>
+        /// txtSupplierCombo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtSupplierCombo;
+
+        /// <summary>
+        /// rfvPONumber control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPONumber;
+
+        /// <summary>
         /// txtPONumber control.
         /// </summary>
         /// <remarks>
@@ -67,6 +85,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtPONumber;
+
+        /// <summary>
+        /// rfvPODate control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPODate;
 
         /// <summary>
         /// txtPODate control.
@@ -78,6 +105,33 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtPODate;
 
         /// <summary>
+        /// rfvPRSType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPRSType;
+
+        /// <summary>
+        /// ddlPRSType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlPRSType;
+
+        /// <summary>
+        /// rfvPOAmount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvPOAmount;
+
+        /// <summary>
         /// txtPOAmount control.
         /// </summary>
         /// <remarks>
@@ -85,6 +139,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtPOAmount;
+
+        /// <summary>
+        /// cvPOPaymentType control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.CustomValidator cvPOPaymentType;
 
         /// <summary>
         /// rbFixed control.
@@ -105,6 +168,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.RadioButton rbOnUsage;
 
         /// <summary>
+        /// rfvMonths control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvMonths;
+
+        /// <summary>
         /// txtMonths control.
         /// </summary>
         /// <remarks>
@@ -114,22 +186,13 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtMonths;
 
         /// <summary>
-        /// pnlMonthDropdown control.
+        /// rfvInvoiceAmount control.
         /// </summary>
         /// <remarks>
         /// Auto-generated field.
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
-        protected global::System.Web.UI.WebControls.Panel pnlMonthDropdown;
-
-        /// <summary>
-        /// chkListMonths control.
-        /// </summary>
-        /// <remarks>
-        /// Auto-generated field.
-        /// To modify move field declaration from designer file to code-behind file.
-        /// </remarks>
-        protected global::System.Web.UI.WebControls.CheckBoxList chkListMonths;
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvInvoiceAmount;
 
         /// <summary>
         /// txtInvoiceAmount control.
@@ -141,6 +204,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtInvoiceAmount;
 
         /// <summary>
+        /// rfvNatureOfExp control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvNatureOfExp;
+
+        /// <summary>
         /// txtNatureOfExp control.
         /// </summary>
         /// <remarks>
@@ -148,6 +220,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtNatureOfExp;
+
+        /// <summary>
+        /// rfvAgreementStart control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAgreementStart;
 
         /// <summary>
         /// txtAgreementStart control.
@@ -159,6 +240,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtAgreementStart;
 
         /// <summary>
+        /// rfvAgreementEnd control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAgreementEnd;
+
+        /// <summary>
         /// txtAgreementEnd control.
         /// </summary>
         /// <remarks>
@@ -166,6 +256,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAgreementEnd;
+
+        /// <summary>
+        /// rfvFileUpload control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvFileUpload;
 
         /// <summary>
         /// fuDocument control.

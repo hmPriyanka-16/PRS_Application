@@ -7,6 +7,10 @@ namespace PRSwebapp
     {
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["UserID"].ToString() == null || Session["UserID"].ToString() == "")
+            {
+                Response.Redirect("Login.aspx");
+            }
             if (!IsPostBack)
             {
                 // Get RINGI number from query string

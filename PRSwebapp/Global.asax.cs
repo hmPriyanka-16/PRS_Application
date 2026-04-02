@@ -22,6 +22,7 @@ namespace PRSwebapp
             Session["EmpName"] = "";
             Session["depid"] = "";
             Session["department"] = "";
+            Session["HospitalID"] = "";
             Session["Role"] = "0";
         }
 
@@ -48,6 +49,7 @@ namespace PRSwebapp
             Session["EmpName"] = "";
             Session["depid"] = "";
             Session["department"] = "";
+            Session["HospitalID"] = "";
             Session["Role"] = "0";
         }
 

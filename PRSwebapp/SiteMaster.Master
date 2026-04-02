@@ -11,7 +11,11 @@
 
     <style>
         /* ===== GLOBAL STYLES ===== */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        * { box-sizing: border-box; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin-left: 0;
+            margin-right: 0;
+            margin-bottom: 0;
+        }
         html, body { height: 100%; background: #f4f0fa; overflow-x: hidden; }
         a { text-decoration: none; }
         a:hover { text-decoration: none; }
@@ -221,72 +225,258 @@
 .sidebar-logout-btn:hover {
     background: #e84118;
 }
+.hospital-dropdown {
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid #6c5ce7;
+    font-weight: 600;
+    font-size: 13px;
+    color: #4b39c2;
+}.user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.user-menu {
+    position: absolute;
+    top: 45px;
+    right: 0;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    padding: 10px;
+    display: none;
+    z-index: 2000;
+}
+
+.user-menu.show {
+    display: block;
+}
+.user-info {
+    font-weight: 600;
+    color: #4b39c2;
+    font-size: 14px;
+    text-decoration: underline;   /* ✅ underline username */
+    cursor: pointer;              /* optional – shows clickable */
+}
+.hospital-dropdown {
+    margin-bottom: 12px; /* Adjust the gap as needed */
+}
 
 
+
+.user-menu-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+
+.user-menu-row label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b39c2;
+    min-width: 60px;   /* keeps labels aligned */
+}
+
+.user-menu-row .hospital-dropdown {
+    flex: 1;
+}
+.user-name-role {
+    display: flex;
+    flex-direction: column; /* stack username above role */
+    align-items: center;    /* center under the icon */
+    gap: 2px;               /* small space between username and role */
+}
+
+.user-role {
+    font-size: 13px;        /* smaller than username */
+    font-weight: 500;
+    color: darkred;         /* theme color */
+}
     </style>
+        </asp:ContentPlaceHolder>
 </head>
 
+
 <body class="<%= this.Page.Title == "Dashboard" ? "dashboard-page" : "" %>">
-    <form id="form1" runat="server">
-        <!-- HEADER -->
+    <form id="form1" runat="server" defaultbutton="">
+
+        <!-- ===== HEADER ===== -->
         <div class="header">
             <div class="header-left">
-                <img src="Images/Sakra-logo.png" class="logo" alt="Logo" />
+                <img id="imgHospitalLogo" runat="server" class="logo" alt="Hospital Logo" />
             </div>
 
             <div class="header-center">
-                <span class="hospital-name">SAKRA WORLD HOSPITAL</span>
+                <asp:Label ID="lblHospitalName" runat="server" CssClass="hospital-name" />
             </div>
 
-            <div class="header-right">
-                <div class="user-logo"><i class="fa-solid fa-user"></i></div>
-                <asp:Label ID="lblUserName" runat="server" Text="Guest" CssClass="user-info"></asp:Label>
-                <asp:Button ID="btnLogout" runat="server" Text="Logout" CssClass="logout-btn" OnClick="btnLogout_Click" />
+            <!-- ===== HEADER RIGHT ===== -->
+            <div class="header-right" style="position:relative; gap:10px;">
+
+                <!-- USER NAME / ICON -->
+                <div class="user-trigger" onclick="toggleUserMenu()">
+    <div class="user-logo">
+        <i class="fa-solid fa-user"></i>
+    </div>
+    
+    <!-- Vertical stack for username and role -->
+    <div class="user-name-role">
+        <asp:Label ID="lblUserName" runat="server" CssClass="user-info" />
+        <asp:Label ID="lblUserRole" runat="server" CssClass="user-role" />
+    </div>
+</div>
+
+                <!-- 🔴 LOGOUT (NAME SIDE - ALWAYS VISIBLE) -->
+                <asp:Button ID="btnHeaderLogout"
+                    runat="server"
+                    Text="Logout"
+                    CommandName="Masterlogout"
+                    OnCommand="Master_OnCommand"
+                    CssClass="logout-btn"
+                    CausesValidation="false"
+                    UseSubmitBehavior="false" />
+
+                <!-- USER DROPDOWN -->
+                <div id="userMenu" class="user-menu">
+
+                   <div class="user-menu-row">
+    <label>Role :</label>
+    <asp:DropDownList ID="ddlRole"
+        runat="server"
+        AutoPostBack="false"
+        OnSelectedIndexChanged="ddlRole_SelectedIndexChanged"
+        CssClass="hospital-dropdown">
+    </asp:DropDownList>
+</div>
+
+<div class="user-menu-row">
+    <label>Hospital :</label>
+    <asp:DropDownList ID="ddlHospital"
+        runat="server"
+        AutoPostBack="true"
+        OnSelectedIndexChanged="ddlHospital_SelectedIndexChanged"
+        CssClass="hospital-dropdown">
+    </asp:DropDownList>
+</div>
+                    <asp:Button ID="btnSwitchRole"
+    runat="server"
+    Text="Switch Role"
+    CssClass="logout-btn"
+    OnClick="btnSwitchRole_Click"
+    CausesValidation="false" />
+
+                    <!-- 🔴 LOGOUT (DROPDOWN) -->
+                    
+                </div>
+
             </div>
         </div>
 
-        <!-- TOP NAVIGATION -->
-      <div id="topNav" runat="server" class="top-nav">
-    <div class="menu-icon" onclick="toggleSidebar()"><i class="fa fa-bars"></i></div>
-    <a href="dashboard.aspx">Dashboard</a>
-    <a href="Supplier.aspx">Supplier Registration</a>
-    <a href="supplierdetails.aspx">Supplier PO Entry</a>
-    <a href="PRS_Request.aspx">Vendor PRS</a>
-    <a href="pendingtask.aspx">My Tasks</a>
-    <a href="CompletedTask.aspx">Completed PRS</a>
-    <a href="Inprogress.aspx">In Progress</a>
-    <a href="EmpClaim.aspx">Claim PRS</a>
-</div>
-<div id="sidebar" runat="server" class="sidebar">
-    <a href="dashboard.aspx"><i class="fa fa-home"></i> Dashboard</a>
-    <a href="Supplier.aspx"><i class="fa fa-users"></i> Supplier Registration</a>
-    <a href="supplierdetails.aspx"><i class="fa fa-plus-circle"></i> Supplier PO Entry</a>
-    <a href="PRS_Request.aspx"><i class="fa fa-plus-circle"></i> Vendor PRS</a>
-    <a href="pendingtask.aspx"><i class="fa fa-list"></i> Pending Tasks</a>
-    <a href="CompletedTask.aspx"><i class="fa fa-check"></i> Completed PRS</a>
-    <a href="Inprogress.aspx"><i class="fa fa-plus-circle"></i> In Progress</a>
-    <a href="EmpClaim.aspx"><i class="fa fa-plus-circle"></i> Claim PRS</a>
-    
-    <!-- LOGOUT BUTTON IN SIDEBAR -->
-    <asp:Button ID="btnSidebarLogout" runat="server" Text="Logout" CssClass="sidebar-logout-btn" OnClick="btnLogout_Click" />
-</div>
+        <!-- ===== TOP NAVIGATION ===== -->
+        <div id="topNav" runat="server" class="top-nav">
+            <div class="menu-icon" onclick="toggleSidebar()">
+                <i class="fa fa-bars"></i>
+            </div>
+            <a href="dashboard.aspx">Dashboard</a>
+            <a href="pendingtask.aspx">My Tasks</a>
+            <a href="Inprogress.aspx">In Progress</a>
+            <a href="CompletedTask.aspx">Completed PRS</a>
+            <a href="PRS_Request.aspx">Vendor PRS</a>
+            <a href="EmpClaim.aspx">Claim PRS</a>
+<a href="rejecthold.aspx?status=rejected">Rejected PRS</a>
+<a href="hold.aspx?status=hold">Hold PRS</a>
+            <a href="query.aspx?status=query">Query PRS</a>
+
+            <a id="lnkSupplierDetailsTop"
+   runat="server"
+   href="supplierdetails.aspx">
+    PO Entry
+</a>
+            <a id="lnkSupplierregTop"
+   runat="server" href="Supplier.aspx">Supplier Registration</a>
+            <a id="lnkRoleDetailsTop"
+   runat="server"
+   href="ROLEDETAILS.aspx">
+   Role Details
+</a>
 
 
+        </div>
 
-        <!-- MAIN CONTENT -->
+        <!-- ===== SIDEBAR ===== -->
+        <div id="sidebar" runat="server" class="sidebar">
+            <a href="dashboard.aspx"><i class="fa fa-home"></i> Dashboard</a>
+            <a href="pendingtask.aspx"><i class="fa fa-list"></i> My Tasks</a>
+            <a href="Inprogress.aspx"><i class="fa fa-plus-circle"></i> In Progress</a>
+            <a href="CompletedTask.aspx"><i class="fa fa-check"></i> Completed PRS</a>
+            <a href="PRS_Request.aspx"><i class="fa fa-plus-circle"></i> Vendor PRS</a>
+            <a href="EmpClaim.aspx"><i class="fa fa-plus-circle"></i> Claim PRS</a>
+<a href="rejecthold.aspx?status=rejected"><i class="fa fa-times-circle"></i> Rejected PRS</a>
+<a href="hold.aspx?status=hold"><i class="fa fa-pause-circle"></i> Hold PRS</a>
+            <a id="lnkSupplierDetailsSide"
+   runat="server"
+   href="supplierdetails.aspx">
+   <i class="fa fa-plus-circle"></i> Supplier PO Entry
+</a>
+            <a id="lnkSupplierreg"
+   runat="server" href="Supplier.aspx"><i class="fa fa-users"></i> Supplier Registration</a>
+            <a id="lnkRoleDetailsSide"
+   runat="server"
+   href="ROLEDETAILS.aspx">
+   <i class="fa fa-user-shield"></i> Employee Role Details
+</a>
+
+
+            <!-- SIDEBAR LOGOUT -->
+            <asp:LinkButton ID="Button1" runat="server"
+                CommandName="Masterlogout"
+                OnCommand="Master_OnCommand"
+                CssClass="sidebar-link"
+                CausesValidation="false"
+                UseSubmitBehavior="false">
+                <i class="fa fa-sign-out-alt"></i> Logout
+            </asp:LinkButton>
+        </div>
+
+        <!-- ===== MAIN CONTENT ===== -->
         <div class="content" id="mainContent">
             <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server"></asp:ContentPlaceHolder>
         </div>
 
-        <!-- FOOTER -->
-        <div class="footer">&copy; 2025 SAKRA WORLD HOSPITAL. All rights reserved.</div>
+        <!-- ===== FOOTER ===== -->
+        <div class="footer">
+            &copy; 2025 SAKRA WORLD HOSPITAL. All rights reserved.
+        </div>
+
     </form>
 
     <script>
         function toggleSidebar() {
-            document.getElementById("sidebar").classList.toggle("open");
-            document.getElementById("mainContent").classList.toggle("shift");
+            var sidebar = document.getElementById("sidebar");
+            var content = document.getElementById("mainContent");
+            if (sidebar && content) {
+                sidebar.classList.toggle("open");
+                content.classList.toggle("shift");
+            }
         }
+
+        function toggleUserMenu() {
+            var menu = document.getElementById("userMenu");
+            if (menu) menu.classList.toggle("show");
+        }
+
+        document.addEventListener("click", function (e) {
+            var headerRight = document.querySelector(".header-right");
+            var menu = document.getElementById("userMenu");
+            if (menu && headerRight && !headerRight.contains(e.target)) {
+                menu.classList.remove("show");
+            }
+        });
     </script>
+
 </body>
 </html>

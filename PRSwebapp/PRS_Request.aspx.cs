@@ -6,8 +6,8 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
-using System.Web.Services;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace PRSwebapp
 {
@@ -18,23 +18,96 @@ namespace PRSwebapp
 
         public static List<string> supplierItems = new List<string>();
 
+        string UdeptID = "";
+        string prsRole = "";
+        string hospitalId = "";
+
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["UserID"].ToString() == null || Session["UserID"].ToString() == "")
+            {
+                Response.Redirect("Login.aspx");
+                return;
+            }
+
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                string query = "SELECT Deptid, PRS_Role, HospitalID FROM Login_role WHERE UserID = @UserID And HospitalID=@HospitalID";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", Session["UserID"].ToString());
+                    cmd.Parameters.AddWithValue("@HospitalID", Session["HospitalID"] ?? "");
+
+                    con.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        UdeptID = reader["Deptid"].ToString();
+                        prsRole = reader["PRS_Role"].ToString();
+                        hospitalId = reader["HospitalID"].ToString();
+
+                        Session["Deptid"] = UdeptID;
+                        Session["PRS_Role"] = prsRole;
+                        Session["HospitalID"] = hospitalId;
+                    }
+                    con.Close();
+                }
+            }
+
+            if (Session["Role"].ToString() == "1" || Session["Role"].ToString() == "2" || Session["Role"].ToString() == "51" || Session["Role"].ToString() == "52")
+                btnSave.Visible = true;
+            else
+            {
+                btnSave.Visible = false;
+                string alertscript = "alert('You are not authorized to create PRS, please change the role');" +
+                                     "window.location='dashboard.aspx';";
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "alertRedirect", alertscript, true);
+            }
+
             if (!IsPostBack)
             {
                 LoadSuppliers();
+                LoadPRSTypes();
             }
         }
 
+        private void RebindInvoiceRows()
+        {
+            var billNos = Request.Form.GetValues("billNo");
+            var billDates = Request.Form.GetValues("billDate");
+            var dueDates = Request.Form.GetValues("dueDate");
+            var billFroms = Request.Form.GetValues("billPeriodFrom");
+            var billTos = Request.Form.GetValues("billPeriodTo");
+            var natures = Request.Form.GetValues("natureOfExp");
+            var amounts = Request.Form.GetValues("amount");
+
+            if (billNos == null) return;
+
+            string script = "window.invoiceData = [];";
+
+            for (int i = 0; i < billNos.Length; i++)
+            {
+                script += $@"
+        window.invoiceData.push({{
+            billNo: '{billNos[i]}',
+            billDate: '{billDates?[i]}',
+            dueDate: '{dueDates?[i]}',
+            from: '{billFroms?[i]}',
+            to: '{billTos?[i]}',
+            nature: '{natures?[i]}',
+            amount: '{amounts?[i]}'
+        }});";
+            }
+
+            ScriptManager.RegisterStartupScript(this, GetType(), "restoreRows", script, true);
+        }
         private void LoadSuppliers()
         {
             supplierItems.Clear();
-
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
                 string sql = "SELECT SupplierName FROM Suppliers ORDER BY SupplierName";
-
                 using (SqlCommand cmd = new SqlCommand(sql, con))
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
@@ -43,15 +116,45 @@ namespace PRSwebapp
                 }
             }
         }
+       
+        private void LoadPRSTypes()
+        {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                string query = "SELECT * FROM PRS_Category WHERE Category=1 ORDER BY ID";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                using (SqlDataReader dr = cmd.ExecuteReader())
+                {
+                    ddlPRSType.DataSource = dr;
+                    ddlPRSType.DataTextField = "PRSName";
+                    ddlPRSType.DataValueField = "ID";
+                    ddlPRSType.DataBind();
+                }
+            }
+            ddlPRSType.Items.Insert(0, new ListItem("-- Select PRS Type --", "0"));
+        }
 
         protected void btnSave_Click(object sender, EventArgs e)
         {
+            if (!Page.IsValid)
+            {
+                RebindInvoiceRows();
+                ScriptManager.RegisterStartupScript(this, GetType(),
+                    "notify",
+                    "showNotification('Please fill all required fields correctly!');",
+                    true);
+                return;
+            }
+
             try
             {
                 if (Session["UserID"] == null || Session["Role"] == null)
                 {
-                    ClientScript.RegisterStartupScript(this.GetType(), "invalidUser",
-                        "alert('Invalid user. Please login again.');", true);
+                    ScriptManager.RegisterStartupScript(this, GetType(),
+                        "invalidUser",
+                        "alert('Invalid user. Please login again.');",
+                        true);
                     return;
                 }
 
@@ -59,31 +162,120 @@ namespace PRSwebapp
                 {
                     con.Open();
 
-                    // 1️⃣ Get SupplierID
+                    // ---------- Get SupplierID ----------
                     int supplierId;
-                    using (SqlCommand cmd = new SqlCommand(
-                        "SELECT SupplierID FROM Suppliers WHERE SupplierName=@name", con))
+                    using (SqlCommand cmd = new SqlCommand("SELECT SupplierID FROM Suppliers WHERE SupplierName=@name", con))
                     {
                         cmd.Parameters.AddWithValue("@name", txtSupplierCombo.Text.Trim());
                         object result = cmd.ExecuteScalar();
-                        if (result == null) throw new Exception("Supplier not found.");
+
+                        if (result == null)
+                        {
+                            RebindInvoiceRows();
+                            ScriptManager.RegisterStartupScript(this, GetType(),
+                                "noSupplier",
+                                "alert('Supplier not found. Please select a valid supplier.');",
+                                true);
+                            return;
+                        }
+
                         supplierId = Convert.ToInt32(result);
                     }
 
-                    // 2️⃣ Check duplicate PO + Period
-                    bool exists = false;
-                    using (SqlCommand cmd = new SqlCommand(@"
-                    SELECT COUNT(*) FROM PrsMaster
-                    WHERE PONumber=@PONumber AND Period=@Period", con))
+                    // ---------- Get Invoice Arrays ----------
+                    string[] billNos = Request.Form.GetValues("billNo");
+                    string[] billDates = Request.Form.GetValues("billDate");
+                    string[] dueDates = Request.Form.GetValues("dueDate");
+                    string[] billFroms = Request.Form.GetValues("billPeriodFrom");
+                    string[] billTos = Request.Form.GetValues("billPeriodTo");
+                    string[] natures = Request.Form.GetValues("natureOfExp");
+                    string[] invoiceAmounts = Request.Form.GetValues("amount");
+
+                    // ---------- CHECK DUPLICATE BILL NUMBER IN CURRENT GRID ----------
+                    if (billNos != null)
                     {
-                        cmd.Parameters.AddWithValue("@PONumber", txtPONumber.Text.Trim());
-                        cmd.Parameters.AddWithValue("@Period", txtPeriodMonth.Text.Trim());
-                        exists = Convert.ToInt32(cmd.ExecuteScalar()) > 0;
+                        HashSet<string> enteredBills = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                        for (int i = 0; i < billNos.Length; i++)
+                        {
+                            string billNo = billNos[i]?.Trim();
+
+                            if (string.IsNullOrEmpty(billNo))
+                                continue;
+
+                            if (enteredBills.Contains(billNo))
+                            {
+                                RebindInvoiceRows();
+                                ScriptManager.RegisterStartupScript(this, GetType(),
+                                    "duplicateLocal",
+                                    $"alert('Duplicate Bill Number at Row {i + 1}: {billNo}');",
+                                    true);
+                                return;
+                            }
+
+                            enteredBills.Add(billNo);
+                        }
+
+                        // ---------- CHECK DUPLICATE IN DATABASE (OPTIMIZED SINGLE QUERY) ----------
+                        List<string> cleanBills = enteredBills.Select(b => b.ToLower()).ToList();
+
+                        if (cleanBills.Count > 0)
+                        {
+                            string billList = string.Join(",", cleanBills.Select(b => "'" + b.Replace("'", "''") + "'"));
+
+                            string sql = $@"
+                    SELECT C.PARTICULARS
+                    FROM PRS_Claims C
+                    JOIN PrsMaster M ON C.PRSNO = M.PRSNO
+                    WHERE M.SupplierID = @SupplierID
+                    AND LOWER(LTRIM(RTRIM(C.PARTICULARS))) IN ({billList})";
+
+                            using (SqlCommand cmdCheck = new SqlCommand(sql, con))
+                            {
+                                cmdCheck.Parameters.AddWithValue("@SupplierID", supplierId);
+
+                                SqlDataReader dr = cmdCheck.ExecuteReader();
+
+                                if (dr.HasRows)
+                                {
+                                    dr.Read();
+                                    string duplicateBill = dr["PARTICULARS"].ToString();
+
+                                    int rowIndex = Array.FindIndex(billNos, b =>
+                                        b != null && b.Trim().Equals(duplicateBill, StringComparison.OrdinalIgnoreCase));
+                                    RebindInvoiceRows();
+
+                                    ScriptManager.RegisterStartupScript(this, GetType(),
+                                        "duplicateBill",
+                                        $"alert('Bill Number already exists in database at Row {rowIndex + 1}: {duplicateBill}');",
+                                        true);
+
+                                    dr.Close();
+                                    return;
+                                }
+
+                                dr.Close();
+                            }
+                        }
                     }
+
+                    // ---------- Calculate Total Amount ----------
+                    decimal totalInvoiceAmount = 0;
+
+                    if (invoiceAmounts != null)
+                    {
+                        foreach (string a in invoiceAmounts)
+                        {
+                            if (decimal.TryParse(a, out decimal amt))
+                                totalInvoiceAmount += amt;
+                        }
+                    }
+
+                    // ---------- Insert PRS Master ----------
+                    string prsDeptId = Session["PRS_DeptID"] != null ? Session["PRS_DeptID"].ToString() : "";
 
                     string generatedPRSNo = "";
 
-                    // 3️⃣ Stored Procedure Insert
                     using (SqlCommand cmd = new SqlCommand("Pr_PRS", con))
                     {
                         cmd.CommandType = System.Data.CommandType.StoredProcedure;
@@ -92,122 +284,112 @@ namespace PRSwebapp
                         {
                             Direction = System.Data.ParameterDirection.Output
                         };
+
                         cmd.Parameters.Add(prsNoParam);
 
                         cmd.Parameters.AddWithValue("@PRSType", ddlPRSType.SelectedValue);
                         cmd.Parameters.AddWithValue("@PONumber", txtPONumber.Text.Trim());
-                        cmd.Parameters.AddWithValue("@billno", txtBillNumber.Text.Trim());
-                        cmd.Parameters.AddWithValue("@billdate",
-                            string.IsNullOrWhiteSpace(txtBillDate.Text)
-                                ? (object)DBNull.Value : DateTime.Parse(txtBillDate.Text));
-
-                        cmd.Parameters.AddWithValue("@Inoviceamount",
-                            string.IsNullOrWhiteSpace(txtAmount.Text)
-                                ? (object)DBNull.Value : Convert.ToDecimal(txtAmount.Text));
-
-                        cmd.Parameters.AddWithValue("@duedate",
-                            string.IsNullOrWhiteSpace(txtDueDate.Text)
-                                ? (object)DBNull.Value : DateTime.Parse(txtDueDate.Text));
-
-                        cmd.Parameters.AddWithValue("@Natureofexpenses",
-                            string.IsNullOrWhiteSpace(txtNatureOfExp.Text)
-                                ? (object)DBNull.Value : txtNatureOfExp.Text.Trim());
-
+                        cmd.Parameters.AddWithValue("@billno", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@billdate", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Inoviceamount", totalInvoiceAmount);
+                        cmd.Parameters.AddWithValue("@duedate", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@Natureofexpenses", DBNull.Value);
                         cmd.Parameters.AddWithValue("@PRSStatus", "New");
-
-                        cmd.Parameters.AddWithValue("@Period",
-                            string.IsNullOrWhiteSpace(txtPeriodMonth.Text)
-                                ? (object)DBNull.Value : txtPeriodMonth.Text.Trim());
-
+                        cmd.Parameters.AddWithValue("@Period", DBNull.Value);
                         cmd.Parameters.AddWithValue("@Comments",
                             string.IsNullOrWhiteSpace(txtComments.Text)
-                                ? (object)DBNull.Value : txtComments.Text.Trim());
+                                ? (object)DBNull.Value
+                                : txtComments.Text.Trim());
 
                         cmd.Parameters.AddWithValue("@user_ID", Session["UserID"]);
-                        cmd.Parameters.AddWithValue("@user_role", Session["Role"]);
+                        cmd.Parameters.AddWithValue("@user_role", Session["PRS_Role"]);
                         cmd.Parameters.AddWithValue("@TRANType", 0);
-
                         cmd.Parameters.AddWithValue("@Emp_Code", Session["Emp_Code"] ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Emp_Name", Session["Emp_Name"] ?? (object)DBNull.Value);
                         cmd.Parameters.AddWithValue("@Emp_Designation", Session["Emp_Designation"] ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@Emp_Department", Session["Emp_Department"] ?? (object)DBNull.Value);
-                        cmd.Parameters.AddWithValue("@BillFrom",
-                           string.IsNullOrWhiteSpace(txtBillPeriodFrom.Text)
-                              ? (object)DBNull.Value
-                              : DateTime.Parse(txtBillPeriodFrom.Text));
-
-                        cmd.Parameters.AddWithValue("@BillTo",
-                            string.IsNullOrWhiteSpace(txtBillPeriodTo.Text)
-                                ? (object)DBNull.Value
-                                : DateTime.Parse(txtBillPeriodTo.Text));
-
-
+                        cmd.Parameters.AddWithValue("@Emp_Department", prsDeptId);
+                        cmd.Parameters.AddWithValue("@BillFrom", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@BillTo", DBNull.Value);
+                        cmd.Parameters.AddWithValue("@HospitalID", Session["HospitalID"]);
+                        cmd.Parameters.AddWithValue("@supplierID", supplierId);
 
                         cmd.ExecuteNonQuery();
 
                         generatedPRSNo = prsNoParam.Value.ToString();
                     }
 
-                    // 4️⃣ Upload Files (SupplierDocuments still uses SupplierName)
+                    // ---------- Save Invoice Rows ----------
+                    if (billNos != null && invoiceAmounts != null)
+                    {
+                        for (int i = 0; i < billNos.Length; i++)
+                        {
+                            decimal rowAmount = 0;
+                            decimal.TryParse(invoiceAmounts[i], out rowAmount);
+
+                            using (SqlCommand cmd = new SqlCommand("sp_SavePRSClaim", con))
+                            {
+                                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+                                cmd.Parameters.AddWithValue("@PRSNO", generatedPRSNo);
+                                cmd.Parameters.AddWithValue("@SLno", i + 1);
+                                cmd.Parameters.AddWithValue("@PARTICULARS", billNos[i] ?? "");
+                                cmd.Parameters.AddWithValue("@PARTICULARS2", billDates[i] ?? "");
+                                cmd.Parameters.AddWithValue("@PURPOSE", dueDates[i] ?? "");
+                                cmd.Parameters.AddWithValue("@BillNo_Mode", billFroms[i] ?? "");
+                                cmd.Parameters.AddWithValue("@BillDate_Distance", billTos[i] ?? "");
+                                cmd.Parameters.AddWithValue("@Comments", natures[i] ?? "");
+                                cmd.Parameters.AddWithValue("@Amount", rowAmount);
+
+                                cmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+
+                    // ---------- Upload Documents ----------
+                    // ---------- Upload Documents ----------
                     if (fuDocument.HasFiles)
                     {
-                        string poNumber = txtPONumber.Text.Trim();
                         string baseFolder = Server.MapPath("~/UploadedFiles/");
-                        if (!Directory.Exists(baseFolder)) Directory.CreateDirectory(baseFolder);
+                        string prsFolder = Path.Combine(baseFolder, generatedPRSNo);
 
-                        string poFolder = Path.Combine(baseFolder, poNumber);
-                        if (!Directory.Exists(poFolder)) Directory.CreateDirectory(poFolder);
+                        if (!Directory.Exists(prsFolder))
+                            Directory.CreateDirectory(prsFolder);
 
-                        foreach (var file in fuDocument.PostedFiles)
+                        foreach (HttpPostedFile file in fuDocument.PostedFiles)
                         {
-                            string fileName = Path.GetFileName(file.FileName);
-                            string savePath = Path.Combine(poFolder, fileName);
+                            string originalFileName = Path.GetFileName(file.FileName);
+                            string safeFileName = Regex.Replace(originalFileName, @"[^a-zA-Z0-9_\-\.]", "_");
+
+                            string savePath = Path.Combine(prsFolder, safeFileName);
                             file.SaveAs(savePath);
 
                             using (SqlCommand cmdFile = new SqlCommand(
-                                "INSERT INTO SupplierDocuments (SupplierName, PONumber, FileName, FilePath) VALUES (@SupplierName, @PONumber, @FileName, @FilePath)", con))
+                                "INSERT INTO SupplierDocuments (PONumber, FileName, FilePath, Status) " +
+                                "VALUES (@PONumber, @FileName, @FilePath, @Status)", con))
                             {
-                                cmdFile.Parameters.AddWithValue("@SupplierName", txtSupplierCombo.Text.Trim()); // unchanged
-                                cmdFile.Parameters.AddWithValue("@PONumber", poNumber);
-                                cmdFile.Parameters.AddWithValue("@FileName", fileName);
-                                cmdFile.Parameters.AddWithValue("@FilePath", $"~/UploadedFiles/{poNumber}/{fileName}");
+                                cmdFile.Parameters.AddWithValue("@PONumber", generatedPRSNo);
+                                cmdFile.Parameters.AddWithValue("@FileName", safeFileName);
+                                cmdFile.Parameters.AddWithValue("@FilePath", $"UploadedFiles/{generatedPRSNo}/{safeFileName}");
+                                cmdFile.Parameters.AddWithValue("@Status", 0); // <-- Default status = 0
                                 cmdFile.ExecuteNonQuery();
                             }
                         }
                     }
 
-                    // 5️⃣ Update ProcessStatus if previous PO exists
-                    if (exists)
-                    {
-                        using (SqlCommand cmd = new SqlCommand(@"
-                        UPDATE SupplierPOEntry
-                        SET ProcessStatus='Completed'
-                        WHERE PONumber=@PONumber", con))
-                        {
-                            cmd.Parameters.AddWithValue("@PONumber", txtPONumber.Text.Trim());
-                            cmd.ExecuteNonQuery();
-                        }
-                    }
-
-                    
-                    // 6️⃣ Redirect to popup with correct PRS
-                    Response.Redirect($"RingiPopupp.aspx?ringi={generatedPRSNo}");
-
-                    // 7️⃣ Clear AFTER redirect (otherwise txtPONumber becomes blank)
-                    ClearForm();
-
-
+                    // ---------- Redirect ----------
+                    Response.Redirect($"RingiPopupp.aspx?ringi={generatedPRSNo}", false);
+                    Context.ApplicationInstance.CompleteRequest();
                 }
-
-                ClientScript.RegisterStartupScript(this.GetType(), "success", "alert('Saved successfully!');", true);
             }
             catch (Exception ex)
             {
-                ClientScript.RegisterStartupScript(this.GetType(), "err", $"alert('Error: {ex.Message}');", true);
-                throw;
+                RebindInvoiceRows();
+                ScriptManager.RegisterStartupScript(this, GetType(),
+                    "err",
+                    $"alert('Error: {ex.Message.Replace("'", "")}');",
+                    true);
             }
         }
-
         protected void btnClear_Click(object sender, EventArgs e)
         {
             ClearForm();
@@ -217,186 +399,8 @@ namespace PRSwebapp
         {
             txtSupplierCombo.Text = "";
             txtPONumber.Text = "";
-            txtNatureOfExp.Text = "";
-            txtPeriodMonth.Text = "";
-            txtBillNumber.Text = "";
-            txtAmount.Text = "";
             txtComments.Text = "";
-            txtBillDate.Text = "";
-            txtDueDate.Text = "";
             txtPODate.Text = DateTime.Now.ToString("yyyy-MM-dd");
-        }
-
-        private static string NormalizeMonthName(string input)
-        {
-            if (string.IsNullOrWhiteSpace(input)) return null;
-            input = input.Trim().ToLower();
-
-            switch (input)
-            {
-                case "jan":
-                case "january": return "January";
-                case "feb":
-                case "february": return "February";
-                case "mar":
-                case "march": return "March";
-                case "apr":
-                case "april": return "April";
-                case "may": return "May";
-                case "jun":
-                case "june": return "June";
-                case "jul":
-                case "july": return "July";
-                case "aug":
-                case "august": return "August";
-                case "sep":
-                case "sept":
-                case "september": return "September";
-                case "oct":
-                case "october": return "October";
-                case "nov":
-                case "november": return "November";
-                case "dec":
-                case "december": return "December";
-                default: return null;
-            }
-        }
-
-        // 6️⃣ FIXED FILTERED HISTORY (SupplierID JOIN)
-        [WebMethod]
-        public static List<Dictionary<string, string>> GetFilteredPOHistory(string supplierName, string agreementStart, string agreementEnd)
-        {
-            var results = new List<Dictionary<string, string>>();
-            string connStr = ConfigurationManager.ConnectionStrings["PRSConnectionString"].ConnectionString;
-
-            // 🔥 Get Department ID from Session
-            int depID = 0;
-            if (HttpContext.Current.Session["deptid"] != null)
-            {
-                int.TryParse(HttpContext.Current.Session["deptid"].ToString(), out depID);
-            }
-
-            using (SqlConnection con = new SqlConnection(connStr))
-            {
-                con.Open();
-
-                string sql = @"
-                SELECT s.SupplierName, d.Name AS Department, e.prstype, e.PONumber,
-                       e.PODate, e.POPaymentType, e.PaymentsApplicable, e.POAmount,
-                       e.InvoiceAmount, e.natureofexp, e.AgreementStart, e.AgreementEnd,
-                       e.RingNumber, e.ProcessStatus
-                FROM SupplierPOEntry e
-                INNER JOIN Suppliers s ON e.SupplierID = s.SupplierID   -- FIXED
-                LEFT JOIN Department d ON e.Department = d.ID
-                WHERE 1=1";
-
-                // 🔥 Filter by Department
-                if (depID > 0)
-                    sql += " AND e.Department = @DepID";
-
-                if (!string.IsNullOrEmpty(supplierName))
-                    sql += " AND s.SupplierName LIKE @s";
-
-                if (!string.IsNullOrEmpty(agreementStart))
-                    sql += " AND e.AgreementStart >= @start";
-
-                if (!string.IsNullOrEmpty(agreementEnd))
-                    sql += " AND e.AgreementEnd <= @end";
-
-                sql += " ORDER BY e.AgreementStart DESC";
-
-                using (SqlCommand cmd = new SqlCommand(sql, con))
-                {
-                    // 🔥 Add Department parameter
-                    if (depID > 0)
-                        cmd.Parameters.AddWithValue("@DepID", depID);
-
-                    if (!string.IsNullOrEmpty(supplierName))
-                        cmd.Parameters.AddWithValue("@s", "%" + supplierName + "%");
-
-                    if (!string.IsNullOrEmpty(agreementStart))
-                        cmd.Parameters.AddWithValue("@start", DateTime.Parse(agreementStart));
-
-                    if (!string.IsNullOrEmpty(agreementEnd))
-                        cmd.Parameters.AddWithValue("@end", DateTime.Parse(agreementEnd));
-
-                    using (SqlDataReader dr = cmd.ExecuteReader())
-                    {
-                        while (dr.Read())
-                        {
-                            string poNumber = dr["PONumber"].ToString();
-                            string paymentsApplicable = dr["PaymentsApplicable"]?.ToString() ?? "";
-
-                            paymentsApplicable = Regex.Replace(paymentsApplicable, "(processed|process)", "", RegexOptions.IgnoreCase);
-
-                            var months = Regex.Split(paymentsApplicable, @"[,\-/;\s]+")
-                                .Select(NormalizeMonthName)
-                                .Where(m => !string.IsNullOrEmpty(m))
-                                .Distinct(StringComparer.OrdinalIgnoreCase)
-                                .ToList();
-
-                            HashSet<string> processedMonths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-                            using (SqlConnection con2 = new SqlConnection(connStr))
-                            {
-                                con2.Open();
-
-                                using (SqlCommand cmdCheck = new SqlCommand(
-                                    "SELECT Period FROM PrsMaster WHERE PONumber=@po", con2))
-                                {
-                                    cmdCheck.Parameters.AddWithValue("@po", poNumber);
-
-                                    using (SqlDataReader drCheck = cmdCheck.ExecuteReader())
-                                    {
-                                        while (drCheck.Read())
-                                        {
-                                            string dbMonths = drCheck["Period"].ToString();
-                                            if (!string.IsNullOrWhiteSpace(dbMonths))
-                                            {
-                                                foreach (var m in Regex.Split(dbMonths, @"[,\s;]+")
-                                                    .Select(NormalizeMonthName)
-                                                    .Where(x => !string.IsNullOrEmpty(x)))
-                                                {
-                                                    processedMonths.Add(m);
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            foreach (string month in months)
-                            {
-                                string status = processedMonths.Contains(month) ? "Processed" : "Pending";
-
-                                results.Add(new Dictionary<string, string>
-                                {
-                                    ["SupplierName"] = dr["SupplierName"].ToString(),
-                                    ["Department"] = dr["Department"].ToString(),
-                                    ["prstype"] = dr["prstype"].ToString(),
-                                    ["PONumber"] = poNumber,
-                                    ["PODate"] =
-                                        dr["PODate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["PODate"]).ToString("yyyy-MM-dd"),
-                                    ["POPaymentType"] = dr["POPaymentType"].ToString(),
-                                    ["PaymentsApplicable"] = month,
-                                    ["Status"] = status,
-                                    ["POAmount"] = dr["POAmount"].ToString(),
-                                    ["InvoiceAmount"] = dr["InvoiceAmount"].ToString(),
-                                    ["natureofexp"] = dr["natureofexp"].ToString(),
-                                    ["AgreementStart"] =
-                                        dr["AgreementStart"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementStart"]).ToString("yyyy-MM-dd"),
-                                    ["AgreementEnd"] =
-                                        dr["AgreementEnd"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementEnd"]).ToString("yyyy-MM-dd"),
-                                    ["RingNumber"] = dr["RingNumber"].ToString(),
-                                    ["ProcessStatus"] = dr["ProcessStatus"].ToString()
-                                });
-                            }
-                        }
-                    }
-                }
-            }
-
-            return results;
         }
     }
 }

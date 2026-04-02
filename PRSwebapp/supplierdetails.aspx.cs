@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.IO;
+using System.Web;
 using System.Web.Services;
 using System.Web.UI;
+using System.Web.UI.WebControls;
 
 namespace PRSwebapp
 {
@@ -15,13 +17,69 @@ namespace PRSwebapp
         public static List<string> supplierItems = new List<string>();
         public static List<string> departmentItems = new List<string>();
 
+        string UdeptID = "";
+        string prsRole = "";
+        string hospitalId = "";
         protected void Page_Load(object sender, EventArgs e)
         {
+            if (Session["UserID"].ToString() == null || Session["UserID"].ToString() == "")
+            {
+                Response.Redirect("Login.aspx");
+             
+            }
+            using (SqlConnection con = new SqlConnection(connStr))
+
+            {
+                string query = "SELECT Deptid, PRS_Role, HospitalID FROM Login_role WHERE UserID = @UserID And HospitalID=@HospitalID";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@UserID", Session["UserID"].ToString());
+                    cmd.Parameters.AddWithValue("@HospitalID", Session["HospitalID"].ToString());
+
+                    con.Open();
+
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        UdeptID = reader["Deptid"].ToString();
+                        prsRole = reader["PRS_Role"].ToString();
+                        hospitalId = reader["HospitalID"].ToString();
+
+                        Session["Deptid"] = UdeptID;
+                        Session["PRS_Role"] = prsRole;
+                        Session["HospitalID"] = hospitalId;
+                    }
+                    con.Close();
+                }
+            }
+
+            // --- Set button visibility based on PRS role (same as your 1st code) ---
+            if (prsRole == "1" || prsRole == "2" || prsRole == "51" || prsRole == "52")
+            {
+                // Allow creation
+                btnSave.Visible = true;
+            }
+            else
+            {
+                // Other roles: disable create
+                btnSave.Visible = false;
+
+                ScriptManager.RegisterStartupScript(this, this.GetType(),
+                    "alert", "alert('You are not authorized to create PO.');", true);
+            }
+
             if (!IsPostBack)
             {
                 LoadSupplierItems();
-                LoadDepartmentItems();
+
+                LoadPRSTypes();
+
+
             }
+        }
+        protected void ValidatePOPaymentType(object source, ServerValidateEventArgs args)
+        {
+            args.IsValid = rbFixed.Checked || rbOnUsage.Checked;
         }
 
         private void LoadSupplierItems()
@@ -40,21 +98,102 @@ namespace PRSwebapp
             }
         }
 
-        private void LoadDepartmentItems()
+
+        private void LoadPRSTypes()
         {
-            departmentItems.Clear();
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
-                string query = "SELECT Name FROM Department ORDER BY Name";
+                string query = "SELECT  * FROM PRS_Category where Category=1 ORDER BY ID";
+
                 using (SqlCommand cmd = new SqlCommand(query, con))
                 using (SqlDataReader dr = cmd.ExecuteReader())
                 {
-                    while (dr.Read())
-                        departmentItems.Add(dr["Name"].ToString());
+                    ddlPRSType.DataSource = dr;
+                    ddlPRSType.DataTextField = "PRSName"; // <-- matches your table
+                    ddlPRSType.DataValueField = "ID";     // Value stored in DB
+                    ddlPRSType.DataBind();
                 }
             }
+
+            ddlPRSType.Items.Insert(0, new ListItem("-- Select PRS Type --", "0"));
         }
+        protected void btnFetchRing_Click(object sender, EventArgs e)
+        {
+            FetchRingData();
+        }
+
+        protected void txtRingNumber_TextChanged(object sender, EventArgs e)
+        {
+            btnFetchRing.Click+= new System.EventHandler(this.btnFetchRing_Click);
+            //FetchRingData();
+        }
+
+        // Reusable method for fetching Ring Number info
+     private void FetchRingData()
+{
+    string ringi = txtRingNumber.Text.Trim();
+    if (string.IsNullOrEmpty(ringi))
+        return;
+
+    string query = @"SELECT PONO, PODate, SupplierName, RINGIType
+                     FROM RINGI_PO
+                     WHERE RINGINO = @RingiNumber";
+
+    using (SqlConnection con = new SqlConnection(connStr))
+    using (SqlCommand cmd = new SqlCommand(query, con))
+    {
+        cmd.Parameters.AddWithValue("@RingiNumber", ringi);
+        con.Open();
+
+        SqlDataReader dr = cmd.ExecuteReader();
+        if (dr.Read())
+        {
+            txtPONumber.Text = dr["PONO"].ToString();
+
+            txtPODate.Text = dr["PODate"] != DBNull.Value
+                ? Convert.ToDateTime(dr["PODate"]).ToString("yyyy-MM-dd")
+                : "";
+
+            txtSupplierCombo.Text = dr["SupplierName"].ToString();
+
+            // PRS TYPE AUTO FILL
+            if (dr["RINGIType"] != DBNull.Value)
+            {
+                string ringiType = dr["RINGIType"].ToString().Trim().ToUpper();
+
+                ddlPRSType.ClearSelection();
+                foreach (ListItem item in ddlPRSType.Items)
+                {
+                    if (item.Text.Trim().ToUpper() == ringiType)
+                    {
+                        item.Selected = true;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                ddlPRSType.SelectedIndex = 0;
+            }
+        }
+        else
+        {
+            txtPONumber.Text = "";
+            txtPODate.Text = "";
+            txtSupplierCombo.Text = "";
+            ddlPRSType.SelectedIndex = 0;
+        }
+    }
+}
+
+
+
+
+
+
+
+
 
         protected void btnClear_Click(object sender, EventArgs e)
         {
@@ -63,8 +202,9 @@ namespace PRSwebapp
 
         private void ClearForm()
         {
+
             txtSupplierCombo.Text = "";
-            txtDepartmentCombo.Text = "";
+           
             txtPONumber.Text = "";
             txtPODate.Text = "";
             rbFixed.Checked = false;
@@ -75,6 +215,7 @@ namespace PRSwebapp
             txtAgreementStart.Text = "";
             txtAgreementEnd.Text = "";
             txtMonths.Text = "";
+            txtMonths.Attributes["value"] = "";
             ddlPRSType.SelectedIndex = 0;
             txtNatureOfExp.Text = "";
             fuDocument.Attributes.Clear();
@@ -85,7 +226,7 @@ namespace PRSwebapp
             try
             {
                 string supplierName = txtSupplierCombo.Text.Trim();
-                string departmentName = txtDepartmentCombo.Text.Trim();
+             
                 string poNumber = txtPONumber.Text.Trim();
                 string poDate = txtPODate.Text.Trim();
                 string poAmountType = rbFixed.Checked ? "Fixed" : rbOnUsage.Checked ? "On Usage" : "";
@@ -117,33 +258,30 @@ namespace PRSwebapp
                     }
 
                     // Get Department ID
-                    int? departmentID = null;
-                    using (SqlCommand cmdDept = new SqlCommand("SELECT ID FROM Department WHERE Name = @name", con))
-                    {
-                        cmdDept.Parameters.AddWithValue("@name", departmentName);
-                        object val = cmdDept.ExecuteScalar();
-                        if (val != null) departmentID = Convert.ToInt32(val);
-                    }
 
-                    if (supplierID == null || departmentID == null)
+
+                    if (supplierID == null)
                     {
-                        ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('⚠ Invalid Supplier or Department');", true);
+                        ClientScript.RegisterStartupScript(this.GetType(), "alert", "alert('⚠ Invalid Supplier ');", true);
                         return;
                     }
 
                     // INSERT SupplierPOEntry (Updated column SupplierID)
                     string insertSql = @"
-                        INSERT INTO SupplierPOEntry 
-                        (SupplierID, Department, prstype, PONumber, PODate, POPaymentType, PaymentsApplicable,
-                         POAmount, InvoiceAmount, natureofexp, AgreementStart, AgreementEnd, RingNumber, ProcessStatus)
-                        VALUES (@SupplierID, @Department, @prstype, @PONumber, @PODate, @POPaymentType, @PaymentsApplicable,
-                                @POAmount, @InvoiceAmount, @natureofexp, @AgreementStart, @AgreementEnd, @RingNumber, 'Not Processed')";
+                      INSERT INTO SupplierPOEntry 
+                      (SupplierID, Department, prstype, PONumber, PODate, POPaymentType, PaymentsApplicable,
+                      POAmount, InvoiceAmount, natureofexp, AgreementStart, AgreementEnd, RingNumber, ProcessStatus, HospitalID)
+                      VALUES (@SupplierID, @Department, @prstype, @PONumber, @PODate, @POPaymentType, @PaymentsApplicable,
+                      @POAmount, @InvoiceAmount, @natureofexp, @AgreementStart, @AgreementEnd, @RingNumber, 'Not Processed', @HospitalID)";
+
 
                     using (SqlCommand cmd = new SqlCommand(insertSql, con))
                     {
                         cmd.Parameters.AddWithValue("@SupplierID", supplierID);
-                        cmd.Parameters.AddWithValue("@Department", departmentID);
+                        cmd.Parameters.AddWithValue("@Department", Session["Deptid"]);
+
                         cmd.Parameters.AddWithValue("@prstype", ddlPRSType.SelectedValue);
+
                         cmd.Parameters.AddWithValue("@PONumber", string.IsNullOrWhiteSpace(poNumber) ? (object)DBNull.Value : poNumber);
                         cmd.Parameters.AddWithValue("@PODate", poDateValue);
                         cmd.Parameters.AddWithValue("@POPaymentType", string.IsNullOrWhiteSpace(poAmountType) ? (object)DBNull.Value : poAmountType);
@@ -154,6 +292,7 @@ namespace PRSwebapp
                         cmd.Parameters.AddWithValue("@AgreementStart", agreementStartValue);
                         cmd.Parameters.AddWithValue("@AgreementEnd", agreementEndValue);
                         cmd.Parameters.AddWithValue("@RingNumber", string.IsNullOrWhiteSpace(ringNumber) ? (object)DBNull.Value : ringNumber);
+                        cmd.Parameters.AddWithValue("@HospitalID", Session["HospitalID"]);
 
                         int rows = cmd.ExecuteNonQuery();
 
@@ -173,10 +312,11 @@ namespace PRSwebapp
                                 file.SaveAs(savePath);
 
                                 using (SqlCommand cmdFile = new SqlCommand(
-                                    "INSERT INTO SupplierDocuments (SupplierName, PONumber, FileName, FilePath) VALUES (@SupplierName, @PONumber, @FileName, @FilePath)", con))
+                                    "INSERT INTO SupplierDocuments (PONumber, FileName, FilePath) VALUES (@PONumber, @FileName, @FilePath)", con))
                                 {
-                                    cmdFile.Parameters.AddWithValue("@SupplierName", supplierName);
+
                                     cmdFile.Parameters.AddWithValue("@PONumber", poNumber);
+
                                     cmdFile.Parameters.AddWithValue("@FileName", fileName);
                                     cmdFile.Parameters.AddWithValue("@FilePath", $"~/UploadedFiles/{poNumber}/{fileName}");
                                     cmdFile.ExecuteNonQuery();
@@ -194,7 +334,11 @@ namespace PRSwebapp
             {
                 Response.Write("<pre style='color:red'>" + ex.ToString() + "</pre>");
             }
+            ClientScript.RegisterStartupScript(this.GetType(),
+"clearMonths", "document.getElementById('" + txtMonths.ClientID + "').value='';", true);
+
         }
+
 
         // GET PO HISTORY
         [WebMethod]
@@ -202,21 +346,38 @@ namespace PRSwebapp
         {
             var results = new List<Dictionary<string, string>>();
             string connStr = ConfigurationManager.ConnectionStrings["PRSConnectionString"].ConnectionString;
-
+            int depID = 0;
+            if (HttpContext.Current.Session["deptid"] != null)
+                int.TryParse(HttpContext.Current.Session["deptid"].ToString(), out depID);
             using (SqlConnection con = new SqlConnection(connStr))
             {
                 con.Open();
 
                 string sql = @"
-                    SELECT e.ID, e.SupplierID, s.SupplierName, d.Name AS Department, 
-                           e.prstype, e.PONumber, e.PODate, e.POPaymentType, e.PaymentsApplicable,
-                           e.POAmount, e.InvoiceAmount, e.natureofexp, e.AgreementStart, e.AgreementEnd, 
-                           e.RingNumber
-                    FROM SupplierPOEntry e
-                    INNER JOIN Suppliers s ON e.SupplierID = s.SupplierID
-                    LEFT JOIN Department d ON e.Department = d.ID
-                    WHERE 1=1";
-
+            SELECT 
+                e.ID,
+                e.SupplierID,
+                s.SupplierName,
+                d.Name AS Department,
+                e.prstype AS PRSTypeID,
+                p.PRSName AS PRSTypeName,
+                e.PONumber,
+                e.PODate,
+                e.POPaymentType,
+                e.PaymentsApplicable,
+                e.POAmount,
+                e.InvoiceAmount,
+                e.natureofexp,
+                e.AgreementStart,
+                e.AgreementEnd,
+                e.RingNumber
+            FROM SupplierPOEntry e
+            INNER JOIN Suppliers s ON e.SupplierID = s.SupplierID
+            LEFT JOIN Department d ON e.Department = d.ID
+          LEFT JOIN prstype p ON e.prstype = p.ID 
+            WHERE 1=1
+        ";
+                if (depID > 0) sql += " AND e.Department = @DepID";
                 if (!string.IsNullOrEmpty(supplierName)) sql += " AND s.SupplierName LIKE @s";
                 if (!string.IsNullOrEmpty(agreementStart)) sql += " AND e.AgreementStart >= @start";
                 if (!string.IsNullOrEmpty(agreementEnd)) sql += " AND e.AgreementEnd <= @end";
@@ -225,6 +386,7 @@ namespace PRSwebapp
 
                 using (SqlCommand cmd = new SqlCommand(sql, con))
                 {
+                    if (depID > 0) cmd.Parameters.AddWithValue("@DepID", depID);
                     if (!string.IsNullOrEmpty(supplierName)) cmd.Parameters.AddWithValue("@s", "%" + supplierName + "%");
                     if (!string.IsNullOrEmpty(agreementStart)) cmd.Parameters.AddWithValue("@start", DateTime.Parse(agreementStart));
                     if (!string.IsNullOrEmpty(agreementEnd)) cmd.Parameters.AddWithValue("@end", DateTime.Parse(agreementEnd));
@@ -239,7 +401,7 @@ namespace PRSwebapp
                                 ["SupplierID"] = dr["SupplierID"].ToString(),
                                 ["SupplierName"] = dr["SupplierName"].ToString(),
                                 ["Department"] = dr["Department"].ToString(),
-                                ["prstype"] = dr["prstype"].ToString(),
+                                ["PRSTypeName"] = dr["PRSTypeName"].ToString(),
                                 ["PONumber"] = dr["PONumber"].ToString(),
                                 ["PODate"] = dr["PODate"] == DBNull.Value ? "" : Convert.ToDateTime(dr["PODate"]).ToString("yyyy-MM-dd"),
                                 ["POPaymentType"] = dr["POPaymentType"].ToString(),
@@ -249,8 +411,7 @@ namespace PRSwebapp
                                 ["natureofexp"] = dr["natureofexp"].ToString(),
                                 ["AgreementStart"] = dr["AgreementStart"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementStart"]).ToString("yyyy-MM-dd"),
                                 ["AgreementEnd"] = dr["AgreementEnd"] == DBNull.Value ? "" : Convert.ToDateTime(dr["AgreementEnd"]).ToString("yyyy-MM-dd"),
-                                ["RingNumber"] = dr["RingNumber"].ToString(),
-                               
+                                ["RingNumber"] = dr["RingNumber"].ToString()
                             };
                             results.Add(row);
                         }
@@ -260,6 +421,8 @@ namespace PRSwebapp
 
             return results;
         }
+
+
 
         // UPDATE ANY CELL
         [WebMethod]
@@ -274,7 +437,7 @@ namespace PRSwebapp
                     con.Open();
 
                     var allowedColumns = new HashSet<string> {
-                        "SupplierID","Department","prstype","PONumber","PODate",
+                        "SupplierID","prstype","PONumber","PODate",
                         "POPaymentType","PaymentsApplicable","POAmount","InvoiceAmount",
                         "natureofexp","AgreementStart","AgreementEnd","RingNumber"
                     };

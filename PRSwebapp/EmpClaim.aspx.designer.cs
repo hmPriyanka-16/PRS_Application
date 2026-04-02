@@ -15,6 +15,15 @@ namespace PRSwebapp
     {
 
         /// <summary>
+        /// ScriptManager1 control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.ScriptManager ScriptManager1;
+
+        /// <summary>
         /// hfExpenseData control.
         /// </summary>
         /// <remarks>
@@ -33,6 +42,24 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.HiddenField hfConveyanceData;
 
         /// <summary>
+        /// hfSelectedAdvances control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfSelectedAdvances;
+
+        /// <summary>
+        /// fuExpenseDocs control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuExpenseDocs;
+
+        /// <summary>
         /// btnSaveExpense control.
         /// </summary>
         /// <remarks>
@@ -40,6 +67,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSaveExpense;
+
+        /// <summary>
+        /// rfvAdvPurpose control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdvPurpose;
 
         /// <summary>
         /// txtAdvPurpose control.
@@ -51,6 +87,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtAdvPurpose;
 
         /// <summary>
+        /// rfvAdvNature control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdvNature;
+
+        /// <summary>
         /// txtAdvNature control.
         /// </summary>
         /// <remarks>
@@ -58,6 +103,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAdvNature;
+
+        /// <summary>
+        /// rfvAdvAmount control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdvAmount;
 
         /// <summary>
         /// txtAdvAmount control.
@@ -69,6 +123,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.TextBox txtAdvAmount;
 
         /// <summary>
+        /// rfvAdvComments control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.RequiredFieldValidator rfvAdvComments;
+
+        /// <summary>
         /// txtAdvComments control.
         /// </summary>
         /// <remarks>
@@ -76,6 +139,15 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.TextBox txtAdvComments;
+
+        /// <summary>
+        /// fuAdvanceDocs control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuAdvanceDocs;
 
         /// <summary>
         /// btnSaveAdvance control.
@@ -87,6 +159,15 @@ namespace PRSwebapp
         protected global::System.Web.UI.WebControls.Button btnSaveAdvance;
 
         /// <summary>
+        /// fuLocalDocs control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuLocalDocs;
+
+        /// <summary>
         /// btnSaveLocal control.
         /// </summary>
         /// <remarks>
@@ -94,5 +175,68 @@ namespace PRSwebapp
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Button btnSaveLocal;
+
+        /// <summary>
+        /// txtAccHolder control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtAccHolder;
+
+        /// <summary>
+        /// ddlBankName control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.DropDownList ddlBankName;
+
+        /// <summary>
+        /// txtAccountNo control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtAccountNo;
+
+        /// <summary>
+        /// txtIFSC control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.TextBox txtIFSC;
+
+        /// <summary>
+        /// hfIndividualData control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.HiddenField hfIndividualData;
+
+        /// <summary>
+        /// fuIndividualDocs control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.FileUpload fuIndividualDocs;
+
+        /// <summary>
+        /// btnSaveIndividual control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnSaveIndividual;
     }
 }
